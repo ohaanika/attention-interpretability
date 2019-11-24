@@ -18,7 +18,17 @@ for i in range(0,30):
 data = pd.DataFrame(data=data_array, columns=['codes', 'numerics', 'to_event'])
 #print(data)
 
+dictionary_array = [
+    [0, "Anxiety"],
+    [1, "Depression"],
+    [2, "ADHD"],
+    [3, "Hunger"],
+]
+dictionary = pd.DataFrame(data=dictionary_array)
+#print(dictionary)
+
 pd.to_pickle(data, "data_train.pkl")
 pd.to_pickle(data, "data_test.pkl")
 pd.to_pickle(target, "target_train.pkl")
 pd.to_pickle(target, "target_test.pkl")
+pd.to_pickle(dictionary, "dictionary.pkl")
