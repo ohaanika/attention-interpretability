@@ -38,10 +38,11 @@ def get_data():
     data.columns = ['sentence', 'target']
     return data
 
-def clean_data(data):
+def process_data(data):
     stop_words = stopwords.words('english')
     lemmatizer = WordNetLemmatizer()
     clean_data = []
+    encoded_data = []
     for sentence in data:
         # remove html tags
         sentence = re.sub(re.compile('<.*?>'), ' ', sentence)
@@ -62,8 +63,14 @@ def clean_data(data):
         filtered_words = [w for w in tokens if len(w) > 2 if not w in stop_words]
         # lemmatize words
         lemmatized_words = [lemmatizer.lemmatize(w) for w in filtered_words]
-        # append to new list of cleaned sentences 
-        clean_data.append(' '.join(lemmatized_words))
+        # concatenate words into sentence
+        clean_sentence = ' '.join(lemmatized_words)
+        # append clean sentence
+        clean_data.append(clean_sentence)
+        # encode sentence
+        encoded_sentence = one_hot(clean_sentence, vocab_size) # TODO: convert this to word embeddings using Tokenize later
+        # append encoded sentence
+        encoded_data.append(encoded_sentence)
     # TODO: remove print statements later
     print()
     print('example sentence before cleaning:')
@@ -73,13 +80,11 @@ def clean_data(data):
     print('example sentence after cleaning:')
     print()
     print(clean_data[3])
-    return clean_data
-
-def encode_data(data):
-    # TODO: currently one hot encoding, convert this to word embeddings using Tokenize
-    # TODO: further wrapping list into another list to mock list of lists temporarily
-    encoded_data = [one_hot(sentence, vocab_size) for sentence in data]
-    return encoded_data
+    print()
+    print('example sentence after encoding:')
+    print()
+    print(encoded_data[3])
+    return clean_data, encoded_data
 
 def split_data(df):
     splits = {}
@@ -122,11 +127,8 @@ if __name__ == '__main__':
     # get dataset as a data frame
     df = get_data()
 
-    # clean data
-    df['clean'] = clean_data(df['sentence'])
-
-    # encode data
-    df['codes'] = encode_data(df['clean'])
+    # preprocess data
+    df['clean'], df['codes'] = process_data(df['sentence'])
 
     # TODO: remove print statements later
     print()
