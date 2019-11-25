@@ -12,7 +12,7 @@ from keras.preprocessing import sequence
 from keras.utils.data_utils import Sequence
 from keras.regularizers import l2
 from keras.constraints import non_neg, Constraint
-#from keras_exp.multigpu import get_available_gpus, make_parallel
+from keras_exp.multigpu import get_available_gpus, make_parallel
 from sklearn.metrics import roc_auc_score, average_precision_score, precision_recall_curve
 
 
