@@ -317,7 +317,7 @@ def parse_arguments(parser):
     """Read user arguments"""
     # parser.add_argument('--num_codes', type=int, required=True, # TODO: change back to this!
     #                     help='Number of medical codes')
-    parser.add_argument('--num_codes', type=int, default=4, # TODO: remove this later, and change back to above!
+    parser.add_argument('--num_codes', type=int, default=436817, # TODO: remove this later, and change back to above!
                         help='Number of medical codes')
     parser.add_argument('--numeric_size', type=int, default=0,
                         help='Size of numeric inputs, 0 if none')
