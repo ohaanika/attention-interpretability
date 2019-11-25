@@ -9,7 +9,7 @@ import collections
 from sklearn.model_selection import train_test_split
 from nltk import tokenize
 from nltk.tokenize import RegexpTokenizer
-from nltk.stem import WordNetLemmatizer,PorterStemmer
+from nltk.stem import WordNetLemmatizer, PorterStemmer
 from nltk.corpus import stopwords
 from keras.preprocessing.text import one_hot
 from keras.preprocessing.text import Tokenizer
@@ -24,7 +24,7 @@ from keras.layers.embeddings import Embedding
 
 def combine_files():
     with open(os.path.join(DATA_PATH, DATA_SET, DATA_SET+'.txt'), 'w') as outfile:
-        for split in DATA_SPLITS:
+        for split in ['train', 'valid', 'test']:
             with open(os.path.join(DATA_PATH, DATA_SET, DATA_SET+'-'+split+'.txt')) as infile:
                 outfile.write(infile.read())
 
@@ -38,7 +38,7 @@ def get_data():
     data.columns = ['sentence', 'target']
     return data
 
-def process_data(data):
+def clean_data(data):
     stop_words = stopwords.words('english')
     lemmatizer = WordNetLemmatizer()
     clean_data = []
@@ -64,7 +64,41 @@ def process_data(data):
         lemmatized_words = [lemmatizer.lemmatize(w) for w in filtered_words]
         # append to new list of cleaned sentences 
         clean_data.append(' '.join(lemmatized_words))
-    return (clean_data)
+    # TODO: remove print statements later
+    print()
+    print('example sentence before cleaning:')
+    print()
+    print(data[3])
+    print()
+    print('example sentence after cleaning:')
+    print()
+    print(clean_data[3])
+    return clean_data
+
+def encode_data(data):
+    # TODO: currently one hot encoding, convert this to word embeddings using Tokenize
+    # TODO: further wrapping list into another list to mock list of lists temporarily
+    encoded_data = [one_hot(sentence, vocab_size) for sentence in data]
+    return encoded_data
+
+def split_data(df):
+    splits = {}
+    target = pd.DataFrame(data = np.asarray(df['target']), columns=['target'])
+    data = pd.DataFrame(data = np.asarray(df['codes']), columns=['codes'])
+    data['numerics'] = [[[0 for i in range(0,1)] for i in range(0,1)] for i in range(df.shape[0])]
+    data['to_event'] = np.zeros(df.shape[0])
+    splits['data_train'], splits['data_test'], splits['target_train'], splits['target_test'] = train_test_split(data, target, test_size=0.3, random_state=7)
+    return splits
+
+def pickle_data(splits):
+    for split in splits.keys():
+        # TODO: remove print statements later
+        print()
+        print('data frame for "' + split + '":')
+        print()
+        print(splits[split].head())
+        # TODO: pickle once in desired format
+        # pd.to_pickle(splits[split], os.path.join(DATA_PATH, split+'.pkl'))
 
 if __name__ == '__main__':
 
@@ -77,26 +111,34 @@ if __name__ == '__main__':
     # define constants
     DATA_PATH = args.datapath
     DATA_SET = args.dataset
-    DATA_SPLITS = ['train', 'valid', 'test']
+    DATA_SPLITS = ['train', 'test']
 
-    # prepare data
-    combine_files() # TODO: comment out once dataset files combined into one
+    # combine original dataset files combined into one
+    # combine_files() # TODO: comment out once this is done
+
+    # get number of unique words in dataset
     vocab_size = get_vocab_size()
-    data = get_data()
-    data['clean'] = process_data(data['sentence'])
 
-    # TODO: remove print statements once testing no longer needed
+    # get dataset as a data frame
+    df = get_data()
+
+    # clean data
+    df['clean'] = clean_data(df['sentence'])
+
+    # encode data
+    df['codes'] = encode_data(df['clean'])
+
+    # TODO: remove print statements later
     print()
-    print('----- EXAMPLE SENTENCE (ORIGINAL) -----')
+    print('data fram size: ' + str(df.shape[0]))
     print()
-    print(data['sentence'][3])
+    print('data frame before splitting between "data" and "target":')
     print()
-    print('----- EXAMPLE SENTENCE (CLEAN) -----')
+    print(df.head())
     print()
-    print(data['clean'][3])
-    print()
-    print('----- DATA FRAME -----')
-    print(data.head())
-    print()
-    print('DATA FRAME SIZE: ' + str(data.shape[0]))
-    print()
+
+    # split data into format required for RETAIN
+    df_splits = split_data(df)
+
+    # pickle data
+    pickle_data(df_splits)
