@@ -41,107 +41,53 @@ def get_data():
     data.columns = ['review', 'target']
     return data
 
-
-def preprocess_data(data, method):
-
-    def encode_one_hot():
-        # parse through reviews in data
-        clean_data = []
-        encoded_data = []
-        for review in data:
-            # remove html tags
-            review = re.sub(re.compile('<.*?>'), '\n', review)
-            # tokenize review into sentences
-            review = tokenize.sent_tokenize(review)
-            # parse through sentences in review
-            clean_review = []
-            encoded_review = []
-            for sentence in review:
-                # convert to lowercase
-                sentence = sentence.lower()
-                # keep only alphanumeric and space characters
-                sentence = re.sub(r'[^\w\s]', '', sentence)
-                # remove numeric characters
-                sentence = re.sub(r'[0-9]+', '', sentence)
-                # remove spaces at start and end of sentences
-                sentence = sentence.strip()
-                # replace all whitespaces and newlines with one space character
-                sentence = re.sub(r'\s+', ' ', sentence)
-                # tokenize sentence into words
-                tokenizer = RegexpTokenizer(r'\w+')
-                tokens = tokenizer.tokenize(sentence)
-                # remove stop words
-                filtered_words = [w for w in tokens if len(w) > 2 if not w in stop_words]
-                # lemmatize words
-                lemmatized_words = [lemmatizer.lemmatize(w) for w in filtered_words]
-                # concatenate words into sentence
-                clean_sentence = ' '.join(lemmatized_words)
-                # append clean sentence
-                clean_review.append(clean_sentence)
-                # encode sentence
-                encoded_sentence = one_hot(clean_sentence, vocab_size)
-                # append encoded sentence
-                encoded_review.append(encoded_sentence)
-            # append clean review
-            clean_data.append(clean_review)
-            # append encoded review
-            encoded_data.append(encoded_review)
-        return clean_data, encoded_data
-    
-    # def original():
-    #     clean_data = []
-    #     encoded_data = []
-    #     for review in data:
-    #         # remove html tags
-    #         review = re.sub(re.compile('<.*?>'), '\n', review)
-    #         # convert to lowercase
-    #         review = review.lower()
-    #         # keep only alphanumeric and space characters
-    #         review = re.sub(r'[^\w\s]', '', review)
-    #         # remove numeric characters
-    #         review = re.sub(r'[0-9]+', '', review)
-    #         # remove spaces at start and end of reviews
-    #         review = review.strip()
-    #         # replace all whitespaces and newlines with one space character
-    #         review = re.sub(r'\s+', ' ', review)
-    #         # tokenize review into words
-    #         tokenizer = RegexpTokenizer(r'\w+')
-    #         tokens = tokenizer.tokenize(review)
-    #         # remove stop words
-    #         filtered_words = [w for w in tokens if len(w) > 2 if not w in stop_words]
-    #         # lemmatize words
-    #         lemmatized_words = [lemmatizer.lemmatize(w) for w in filtered_words]
-    #         # concatenate words into review
-    #         clean_review = ' '.join(lemmatized_words)
-    #         # append clean review
-    #         clean_data.append(clean_review)
-    #         # encode review
-    #         encoded_review = one_hot(clean_review, vocab_size) # TODO: convert to word embeddings instead
-    #         # append encoded review
-    #         encoded_data.append(encoded_review)
-    #     return clean_data, encoded_data
-
+def clean_data(data):
     stop_words = stopwords.words('english')
     lemmatizer = WordNetLemmatizer()
-    process_method = {
-        'one-hot': encode_one_hot()
-    }
-    clean_data, encoded_data = process_method[method]
+    # parse through reviews in data
+    clean_data = []
+    for review in data:
+        # remove html tags
+        review = re.sub(re.compile('<.*?>'), '\n', review)
+        # tokenize review into sentences
+        review = tokenize.sent_tokenize(review)
+        # parse through sentences in review
+        clean_review = []
+        for sentence in review:
+            # convert to lowercase
+            sentence = sentence.lower()
+            # keep only alphanumeric and space characters
+            sentence = re.sub(r'[^\w\s]', '', sentence)
+            # remove numeric characters
+            sentence = re.sub(r'[0-9]+', '', sentence)
+            # remove spaces at start and end of sentences
+            sentence = sentence.strip()
+            # replace all whitespaces and newlines with one space character
+            sentence = re.sub(r'\s+', ' ', sentence)
+            # tokenize sentence into words
+            tokenizer = RegexpTokenizer(r'\w+')
+            tokens = tokenizer.tokenize(sentence)
+            # remove stop words
+            filtered_words = [w for w in tokens if len(w) > 2 if not w in stop_words]
+            # lemmatize words
+            lemmatized_words = [lemmatizer.lemmatize(w) for w in filtered_words]
+            # concatenate words into sentence
+            clean_sentence = ' '.join(lemmatized_words)
+            # append clean sentence
+            clean_review.append(clean_sentence)
+        # append clean review
+        clean_data.append(clean_review)
+    return clean_data
+    
 
-    # TODO: remove print statements later
-    print()
-    print('example review before cleaning:')
-    print()
-    print(data[3])
-    print()
-    print('example review after cleaning:')
-    print()
-    print(clean_data[3])
-    print()
-    print('example review after encoding:')
-    print()
-    print(encoded_data[3])
-    return clean_data, encoded_data
+def encode_data(data):
+    # initialize tokenizer
+    tokenizer = Tokenizer()
+    # create internal vocabulary based on text
+    data.map(lambda s: tokenizer.fit_on_texts(s))
+    # transform each sentence in review to a sequence of integers
+    encoded_data = data.map(lambda s: tokenizer.texts_to_sequences(s))
+    return encoded_data
 
 
 def split_data(df):
@@ -189,8 +135,25 @@ if __name__ == '__main__':
     # get dataset as a data frame
     df = get_data()
 
-    # preprocess data
-    df['clean'], df['codes'] = preprocess_data(df['review'], args.encoding)
+    # clean data
+    df['clean'] = clean_data(df['review'])
+
+    # encode data
+    df['codes'] = encode_data(df['clean'])
+
+    # TODO: remove print statements later
+    print()
+    print('example review before cleaning:')
+    print()
+    print(df['review'][3])
+    print()
+    print('example review after cleaning:')
+    print()
+    print(df['clean'][3])
+    print()
+    print('example review after encoding:')
+    print()
+    print(df['codes'][3])
 
     # TODO: remove print statements later
     print()
