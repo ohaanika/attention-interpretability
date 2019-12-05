@@ -135,21 +135,25 @@ if __name__ == '__main__':
     # get dataset as a data frame
     df = get_data()
 
-    # clean data
-    df['clean'] = clean_data(df['review'])
-
-    # encode data
-    df['codes'] = encode_data(df['clean'])
-
     # TODO: remove print statements later
     print()
     print('example review before cleaning:')
     print()
     print(df['review'][3])
+
+    # clean data
+    df['clean'] = clean_data(df['review'])
+
+    # TODO: remove print statements later
     print()
     print('example review after cleaning:')
     print()
     print(df['clean'][3])
+
+    # encode data
+    df['codes'] = encode_data(df['clean'])
+
+    # TODO: remove print statements later
     print()
     print('example review after encoding:')
     print()
