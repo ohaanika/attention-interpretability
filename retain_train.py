@@ -307,7 +307,7 @@ def train_model(model, data_train, y_train, data_test, y_test, ARGS):
 
 
 def main(ARGS):
-    """Main function"""
+    """Main body of the code"""
     print('Reading Data')
     data_train, y_train, data_test, y_test = read_data(ARGS)
 

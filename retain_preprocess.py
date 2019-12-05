@@ -106,6 +106,7 @@ def pickle_dictionary(dictionary):
 
 
 def main(ARGS):
+    """Main body of the code"""
     # combine original dataset files combined into one
     # combine_files() # TODO: comment out once this is done
     # get dataset as a data frame

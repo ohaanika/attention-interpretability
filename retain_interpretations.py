@@ -219,7 +219,7 @@ def get_predictions(model, data, model_parameters, ARGS):
 
 
 def main(ARGS):
-    """Main Body of the code"""
+    """Main body of the code"""
     print('Loading Model and Extracting Parameters')
     model, model_with_attention = import_model(ARGS.path_model)
     model_parameters = get_model_parameters(model)
