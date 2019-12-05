@@ -347,7 +347,7 @@ def parse_arguments(parser):
                         help='Dropout rate for context vector')
     parser.add_argument('--l2', type=float, default=0.0,
                         help='L2 regularitzation value')
-    parser.add_argument('--directory', type=str, default='Model',
+    parser.add_argument('--directory', type=str, default='model',
                         help='Directory to save the model and the log file to')
     parser.add_argument('--allow_negative', action='store_true',
                         help='If argument is present the negative weights for embeddings/attentions\
