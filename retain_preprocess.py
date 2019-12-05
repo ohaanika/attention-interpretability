@@ -91,7 +91,7 @@ def encode_data(data):
     encoded_data = data.map(lambda s: tokenizer.texts_to_sequences(s))
     # convert dictionary to desired format
     dictionary1 = tokenizer.word_index
-    dictionary2 = [[value, key] for key, value in dictionary1.iteritems()]
+    dictionary2 = [[value, key] for key, value in dictionary1.items()]
     dictionary = pd.DataFrame(data=dictionary2)
     return encoded_data, tokenizer, dictionary
 
