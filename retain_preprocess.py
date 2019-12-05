@@ -90,13 +90,9 @@ def encode_data(data):
     # transform each sentence in review to a sequence of integers
     encoded_data = data.map(lambda s: tokenizer.texts_to_sequences(s))
     # convert dictionary to desired format
-    dictionary1 = tokenizer.word_index
-    dictionary2 = {value: key for key, value in dictionary1.items()}
-    # OLD CODE
-    # dictionary1 = tokenizer.word_index
-    # dictionary2 = [[value, key] for key, value in dictionary1.items()]
-    # dictionary = pd.DataFrame(data=dictionary2)
-    return encoded_data, tokenizer, dictionary2
+    word_index = tokenizer.word_index
+    dictionary = {value: key for key, value in word_index.items()}
+    return encoded_data, tokenizer, dictionary
 
 
 def split_data(df):
