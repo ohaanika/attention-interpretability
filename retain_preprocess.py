@@ -24,20 +24,14 @@ nltk.download('wordnet')
 
 
 def combine_files():
-    with open(os.path.join(DATA_PATH, DATA_SET, DATA_SET+'.txt'), 'w') as outfile:
+    with open(os.path.join(ARGS.datapath, ARGS.dataset, ARGS.dataset+'.txt'), 'w') as outfile:
         for split in ['train', 'valid', 'test']:
-            with open(os.path.join(DATA_PATH, DATA_SET, DATA_SET+'-'+split+'.txt')) as infile:
+            with open(os.path.join(ARGS.datapath, ARGS.dataset, ARGS.dataset+'-'+split+'.txt')) as infile:
                 outfile.write(infile.read())
 
 
-def get_vocab_size():
-    with open(os.path.join(DATA_PATH, DATA_SET, DATA_SET+'.txt')) as f:
-        c = collections.Counter(f.read().split())
-    return len(c.keys())
-
-
 def get_data():
-    data = pd.read_csv(os.path.join(DATA_PATH, DATA_SET, DATA_SET+'.txt'), sep='\t', header=None)
+    data = pd.read_csv(os.path.join(ARGS.datapath, ARGS.dataset, ARGS.dataset+'.txt'), sep='\t', header=None)
     data.columns = ['review', 'target']
     return data
 
@@ -90,9 +84,9 @@ def encode_data(data):
     # transform each sentence in review to a sequence of integers
     encoded_data = data.map(lambda s: tokenizer.texts_to_sequences(s))
     # convert dictionary to desired format
-    word_index = tokenizer.word_index
-    dictionary = {value: key for key, value in word_index.items()}
-    return encoded_data, tokenizer, dictionary
+    dictionary = tokenizer.word_index
+    reverse_dictionary = {value: key for key, value in dictionary.items()}
+    return encoded_data, reverse_dictionary
 
 
 def split_data(df):
@@ -108,7 +102,7 @@ def split_data(df):
 def pickle_data(splits):
     for split in splits.keys():
         # TODO: pickle once in desired format
-        pd.to_pickle(splits[split], os.path.join(DATA_PATH, split+'.pkl'))
+        pd.to_pickle(splits[split], os.path.join(ARGS.datapath, split+'.pkl'))
         # TODO: remove print statements later
         print()
         print('data frame for "' + split + '":')
@@ -118,33 +112,13 @@ def pickle_data(splits):
 
 
 def pickle_dictionary(dictionary):
-    pd.to_pickle(dictionary, os.path.join(DATA_PATH, 'dictionary.pkl'))
-    # TODO: remove print statements later
-    # print()
-    # print('data frame for "dictionary":')
-    # print()
-    # print(dictionary.head())
+    pd.to_pickle(dictionary, os.path.join(ARGS.datapath, 'dictionary.pkl'))
 
 
-if __name__ == '__main__':
-
-    # define parser to parse arguments
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--datapath', type=str, default='data', help='define path to data')
-    parser.add_argument('--dataset', type=str, choices=['IMDB', 'yelp'], default='IMDB', help='select dataset')
-    parser.add_argument('--encoding', type=str, choices=['one-hot', 'word-to-vec'], default='one-hot', help='select encoding method')
-    args = parser.parse_args()
-
-    # define constants
-    DATA_PATH = args.datapath
-    DATA_SET = args.dataset
-    DATA_SPLITS = ['train', 'test']
+def main(ARGS):
 
     # combine original dataset files combined into one
     # combine_files() # TODO: comment out once this is done
-
-    # get number of unique words in dataset
-    vocab_size = get_vocab_size()
 
     # get dataset as a data frame
     df = get_data()
@@ -165,21 +139,26 @@ if __name__ == '__main__':
     print(df['clean'][3])
 
     # encode data
-    df['codes'], tokenizer, dictionary = encode_data(df['clean'])
+    df['codes'], dictionary = encode_data(df['clean'])
 
     # TODO: remove print statements later
     print()
     print('example review after encoding:')
     print()
     print(df['codes'][3])
-    # print()
-    # print('word_index:')
-    # print()
-    # print(tokenizer.word_index)
+
+    # TODO: remove print statements later
+    dictionary_head = {k: dictionary[k] for k in list(dictionary)[:10]}
+    print()
+    print('dictionary size: ' + str(len(dictionary)))
+    print()
+    print('first ten examples from "dictionary":')
+    print()
+    print(dictionary_head)
 
     # TODO: remove print statements later
     print()
-    print('data fram size: ' + str(df.shape[0]))
+    print('data frame size: ' + str(df.shape[0]))
     print()
     print('data frame before splitting between "data" and "target":')
     print()
@@ -192,3 +171,24 @@ if __name__ == '__main__':
     # pickle data and dictionary
     pickle_data(df_splits)
     pickle_dictionary(dictionary)
+
+
+def parse_arguments(parser):
+    """Read user arguments"""
+    parser.add_argument('--datapath', 
+                        type=str,  
+                        default='data',  
+                        help='Define path to data')
+    parser.add_argument('--dataset',  
+                        type=str,  
+                        choices=['IMDB', 'yelp'],  
+                        default='IMDB',  
+                        help='Select dataset')
+    args = parser.parse_args()
+    return args
+
+
+if __name__ == '__main__':
+    PARSER = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    ARGS = parse_arguments(PARSER)
+    main(ARGS)
