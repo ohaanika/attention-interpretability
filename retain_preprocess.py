@@ -41,6 +41,7 @@ def get_data():
     data.columns = ['review', 'target']
     return data
 
+
 def clean_data(data):
     stop_words = stopwords.words('english')
     lemmatizer = WordNetLemmatizer()
@@ -84,7 +85,8 @@ def encode_data(data):
     # initialize tokenizer
     tokenizer = Tokenizer()
     # create internal vocabulary based on text
-    data.map(lambda s: tokenizer.fit_on_texts(s))
+    flat_data = [sentence for review in data for sentence in review]
+    tokenizer.fit_on_texts(flat_data)
     # transform each sentence in review to a sequence of integers
     encoded_data = data.map(lambda s: tokenizer.texts_to_sequences(s))
     return encoded_data
