@@ -87,41 +87,6 @@ def preprocess_data(data, method):
             # append encoded review
             encoded_data.append(encoded_review)
         return clean_data, encoded_data
-
-    def encode_word_to_vec():
-        clean_data = []
-        encoded_data = []
-        for review in data:
-            # remove html tags
-            review = re.sub(re.compile('<.*?>'), '\n', review)
-            # convert to lowercase
-            review = review.lower()
-            # keep only alphanumeric and space characters
-            review = re.sub(r'[^\w\s]', '', review)
-            # remove numeric characters
-            review = re.sub(r'[0-9]+', '', review)
-            # remove spaces at start and end of reviews
-            review = review.strip()
-            # replace all whitespaces and newlines with one space character
-            review = re.sub(r'\s+', ' ', review)
-            # tokenize review into words
-            tokenizer = RegexpTokenizer(r'\w+')
-            tokens = tokenizer.tokenize(review)
-            # remove stop words
-            filtered_words = [w for w in tokens if len(w) > 2 if not w in stop_words]
-            # lemmatize words
-            lemmatized_words = [lemmatizer.lemmatize(w) for w in filtered_words]
-            # vectorize
-            # model = word2vec.Word2Vec(lemmatized_words, min_count=1)
-            # concatenate words into review
-            clean_review = ' '.join(lemmatized_words)
-            # append clean review
-            clean_data.append(clean_review)
-            # encode review
-            encoded_review = one_hot(clean_review, vocab_size) # TODO: convert to word embeddings instead
-            # append encoded review
-            encoded_data.append(encoded_review)
-        return clean_data, encoded_data
     
     # def original():
     #     clean_data = []
@@ -159,8 +124,7 @@ def preprocess_data(data, method):
     stop_words = stopwords.words('english')
     lemmatizer = WordNetLemmatizer()
     process_method = {
-        'one-hot': encode_one_hot(),
-        'word-to-vec': encode_word_to_vec()
+        'one-hot': encode_one_hot()
     }
     clean_data, encoded_data = process_method[method]
 
