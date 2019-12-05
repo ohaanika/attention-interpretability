@@ -3,21 +3,13 @@ import os
 import re
 import numpy as np
 import pandas as pd
-import spacy
 import nltk
-import collections
-from sklearn.model_selection import train_test_split
 from nltk import tokenize
 from nltk.tokenize import RegexpTokenizer
 from nltk.stem import WordNetLemmatizer, PorterStemmer
 from nltk.corpus import stopwords
-from keras.preprocessing.text import one_hot
 from keras.preprocessing.text import Tokenizer
-from keras.preprocessing.sequence import pad_sequences
-from keras.models import Sequential
-from keras.layers import Dense
-from keras.layers import Flatten
-from keras.layers.embeddings import Embedding
+from sklearn.model_selection import train_test_split
 nltk.download('stopwords')
 nltk.download('punkt')
 nltk.download('wordnet')
@@ -101,9 +93,7 @@ def split_data(df):
 
 def pickle_data(splits):
     for split in splits.keys():
-        # TODO: pickle once in desired format
         pd.to_pickle(splits[split], os.path.join(ARGS.datapath, split+'.pkl'))
-        # TODO: remove print statements later
         print()
         print('data frame for "' + split + '":')
         print()
@@ -116,47 +106,33 @@ def pickle_dictionary(dictionary):
 
 
 def main(ARGS):
-
     # combine original dataset files combined into one
     # combine_files() # TODO: comment out once this is done
-
     # get dataset as a data frame
     df = get_data()
-
-    # TODO: remove print statements later
     print()
-    print('example review before cleaning:')
+    print('example review before any preprocessing:')
     print()
     print(df['review'][3])
-
     # clean data
     df['clean'] = clean_data(df['review'])
-
-    # TODO: remove print statements later
     print()
     print('example review after cleaning:')
     print()
     print(df['clean'][3])
-
     # encode data
     df['codes'], dictionary = encode_data(df['clean'])
-
-    # TODO: remove print statements later
     print()
     print('example review after encoding:')
     print()
     print(df['codes'][3])
-
-    # TODO: remove print statements later
-    dictionary_head = {k: dictionary[k] for k in list(dictionary)[:10]}
     print()
     print('dictionary size: ' + str(len(dictionary)))
     print()
+    dictionary_head = {k: dictionary[k] for k in list(dictionary)[:10]}
     print('first ten examples from "dictionary":')
     print()
     print(dictionary_head)
-
-    # TODO: remove print statements later
     print()
     print('data frame size: ' + str(df.shape[0]))
     print()
@@ -164,10 +140,8 @@ def main(ARGS):
     print()
     print(df.head())
     print()
-
-    # split data into format required for RETAIN
+    # split data into desired format
     df_splits = split_data(df)
-
     # pickle data and dictionary
     pickle_data(df_splits)
     pickle_dictionary(dictionary)
