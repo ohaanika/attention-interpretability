@@ -16,7 +16,7 @@ nltk.download('wordnet')
 
 
 def get_data():
-    data = pd.read_csv(os.path.join(ARGS.datapath, ARGS.dataset, ARGS.dataset+'.txt'), sep='\t', header=None)
+    data = pd.read_csv(os.path.join(ARGS.path_data_raw, ARGS.dataset, ARGS.dataset+'.txt'), sep='\t', header=None)
     data.columns = ['review', 'target']
     return data
 
@@ -86,7 +86,7 @@ def split_data(df):
 
 def pickle_data(splits):
     for split in splits.keys():
-        pd.to_pickle(splits[split], os.path.join(ARGS.datapath, split+'.pkl'))
+        pd.to_pickle(splits[split], os.path.join(ARGS.path_data_preprocessed, ARGS.dataset, split+'.pkl'))
         print()
         print('data frame for "' + split + '":')
         print()
@@ -95,7 +95,7 @@ def pickle_data(splits):
 
 
 def pickle_dictionary(dictionary):
-    pd.to_pickle(dictionary, os.path.join(ARGS.datapath, 'dictionary.pkl'))
+    pd.to_pickle(dictionary, os.path.join(ARGS.path_data_preprocessed, ARGS.dataset, 'dictionary.pkl'))
 
 
 def main(ARGS):
@@ -141,10 +141,14 @@ def main(ARGS):
 
 def parse_arguments(parser):
     """Read user arguments"""
-    parser.add_argument('--datapath', 
+    parser.add_argument('--path_data_raw', 
+                        type=str,  
+                        default='../data',  
+                        help='Path to raw data')
+    parser.add_argument('--path_data_preprocessed', 
                         type=str,  
                         default='data',  
-                        help='Define path to data')
+                        help='Path to preprocessed data')
     parser.add_argument('--dataset',  
                         type=str,  
                         choices=['IMDB', 'yelp'],  
