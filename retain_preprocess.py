@@ -89,7 +89,7 @@ def encode_data(data):
     tokenizer.fit_on_texts(flat_data)
     # transform each sentence in review to a sequence of integers
     encoded_data = data.map(lambda s: tokenizer.texts_to_sequences(s))
-    return encoded_data
+    return encoded_data, tokenizer
 
 
 def split_data(df):
@@ -153,13 +153,17 @@ if __name__ == '__main__':
     print(df['clean'][3])
 
     # encode data
-    df['codes'] = encode_data(df['clean'])
+    df['codes'], tokenizer = encode_data(df['clean'])
 
     # TODO: remove print statements later
     print()
     print('example review after encoding:')
     print()
     print(df['codes'][3])
+    print()
+    print('word_index:')
+    print()
+    print(tokenizer.word_index)
 
     # TODO: remove print statements later
     print()
