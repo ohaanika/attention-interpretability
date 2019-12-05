@@ -89,7 +89,11 @@ def encode_data(data):
     tokenizer.fit_on_texts(flat_data)
     # transform each sentence in review to a sequence of integers
     encoded_data = data.map(lambda s: tokenizer.texts_to_sequences(s))
-    return encoded_data, tokenizer
+    # convert dictionary to desired format
+    dictionary1 = tokenizer.word_index
+    dictionary2 = [[value, key] for key, value in dictionary1.iteritems()]
+    dictionary = pd.DataFrame(data=dictionary2)
+    return encoded_data, tokenizer, dictionary
 
 
 def split_data(df):
@@ -113,6 +117,8 @@ def pickle_data(splits):
         print(splits[split].head())
     print()
 
+def pickle_dictionary(dictionary):
+    pd.to_pickle(dictionary, "dictionary.pkl")
 
 if __name__ == '__main__':
 
@@ -153,7 +159,7 @@ if __name__ == '__main__':
     print(df['clean'][3])
 
     # encode data
-    df['codes'], tokenizer = encode_data(df['clean'])
+    df['codes'], tokenizer, dictionary = encode_data(df['clean'])
 
     # TODO: remove print statements later
     print()
@@ -177,5 +183,6 @@ if __name__ == '__main__':
     # split data into format required for RETAIN
     df_splits = split_data(df)
 
-    # pickle data
+    # pickle data and dictionary
     pickle_data(df_splits)
+    pickle_dictionary(dictionary)
