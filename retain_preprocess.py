@@ -18,8 +18,8 @@ from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import Flatten
 from keras.layers.embeddings import Embedding
+nltk.download('stopwords')
 # nltk.download('punkt')
-# nltk.download('stopwords')
 # nltk.download('wordnet')
 
 
