@@ -119,7 +119,12 @@ def pickle_data(splits):
 
 
 def pickle_dictionary(dictionary):
-    pd.to_pickle(dictionary, "dictionary.pkl")
+    pd.to_pickle(dictionary, os.path.join(DATA_PATH, 'dictionary.pkl'))
+    # TODO: remove print statements later
+    print()
+    print('data frame for "' + split + '":')
+    print()
+    print(dictionary.head())
 
 
 if __name__ == '__main__':
