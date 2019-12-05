@@ -117,8 +117,10 @@ def pickle_data(splits):
         print(splits[split].head())
     print()
 
+
 def pickle_dictionary(dictionary):
     pd.to_pickle(dictionary, "dictionary.pkl")
+
 
 if __name__ == '__main__':
 
