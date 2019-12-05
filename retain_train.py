@@ -90,6 +90,7 @@ class SequenceBuilder(Sequence):
 
         return outputs
 
+
 class FreezePadding_Non_Negative(Constraint):
     """Freezes the last weight to be near 0 and prevents non-negative embeddings"""
     def __call__(self, w):
@@ -99,6 +100,7 @@ class FreezePadding_Non_Negative(Constraint):
         w *= appended
         return w
 
+
 class FreezePadding(Constraint):
     """Freezes the last weight to be near 0."""
     def __call__(self, w):
@@ -107,6 +109,7 @@ class FreezePadding(Constraint):
         appended = K.concatenate([other_weights, last_weight], axis=0)
         w *= appended
         return w
+
 
 def read_data(ARGS):
     """Read the data from provided paths and assign it into lists"""
@@ -125,6 +128,7 @@ def read_data(ARGS):
         data_output_test.append(data_test_df['to_event'].values)
     return (data_output_train, y_train, data_output_test, y_test)
 
+
 def model_create(ARGS):
     """Create and Compile model and assign it to provided devices"""
     def retain(ARGS):
@@ -140,8 +144,6 @@ def model_create(ARGS):
             embeddings_constraint = FreezePadding_Non_Negative()
             beta_activation = 'sigmoid'
             output_constraint = non_neg()
-
-
 
         #Get available gpus , returns empty list if none
         glist = get_available_gpus()
@@ -248,6 +250,7 @@ def model_create(ARGS):
 
     return model_final
 
+
 def create_callbacks(model, data, ARGS):
     """Create the checkpoint and logging callbacks"""
     class LogEval(Callback):
@@ -292,6 +295,7 @@ def create_callbacks(model, data, ARGS):
     log = LogEval(ARGS.directory+'/log.txt', model, data, ARGS)
     return(checkpoint, log)
 
+
 def train_model(model, data_train, y_train, data_test, y_test, ARGS):
     """Train the Model with appropriate callbacks and generator"""
     checkpoint, log = create_callbacks(model, (data_test, y_test), ARGS)
@@ -300,6 +304,7 @@ def train_model(model, data_train, y_train, data_test, y_test, ARGS):
     model.fit_generator(generator=train_generator, epochs=ARGS.epochs,
                         max_queue_size=15, use_multiprocessing=True,
                         callbacks=[checkpoint, log], verbose=1, workers=3, initial_epoch=0)
+
 
 def main(ARGS):
     """Main function"""
@@ -313,51 +318,83 @@ def main(ARGS):
     train_model(model=model, data_train=data_train, y_train=y_train,
                 data_test=data_test, y_test=y_test, ARGS=ARGS)
 
+
 def parse_arguments(parser):
     """Read user arguments"""
     # parser.add_argument('--num_codes', type=int, required=True, # TODO: change back to this!
     #                     help='Number of medical codes')
-    parser.add_argument('--num_codes', type=int, default=436817, # TODO: remove this later, and change back to above!
+    parser.add_argument('--num_codes', # TODO: remove this later, and change back to above!
+                        type=int, 
+                        default=436817, 
                         help='Number of medical codes')
-    parser.add_argument('--numeric_size', type=int, default=0,
+    parser.add_argument('--numeric_size', 
+                        type=int, 
+                        default=0,
                         help='Size of numeric inputs, 0 if none')
-    parser.add_argument('--use_time', action='store_true',
+    parser.add_argument('--use_time', 
+                        action='store_true',
                         help='If argument is present the time input will be used')
-    parser.add_argument('--emb_size', type=int, default=200,
+    parser.add_argument('--emb_size', 
+                        type=int, 
+                        default=200,
                         help='Size of the embedding layer')
-    parser.add_argument('--epochs', type=int, default=1,
+    parser.add_argument('--epochs', 
+                        type=int, 
+                        default=1,
                         help='Number of epochs')
-    parser.add_argument('--n_steps', type=int, default=300,
+    parser.add_argument('--n_steps', 
+                        type=int,  
+                        default=300,
                         help='Maximum number of visits after which the data is truncated')
-    parser.add_argument('--recurrent_size', type=int, default=200,
+    parser.add_argument('--recurrent_size', 
+                        type=int,  
+                        default=200,
                         help='Size of the recurrent layers')
-    parser.add_argument('--path_data_train', type=str, default='data/data_train.pkl',
+    parser.add_argument('--path_data_train',  
+                        type=str,  
+                        default='data/data_train.pkl',
                         help='Path to train data')
-    parser.add_argument('--path_data_test', type=str, default='data/data_test.pkl',
+    parser.add_argument('--path_data_test',  
+                        type=str, 
+                        default='data/data_test.pkl',
                         help='Path to test data')
-    parser.add_argument('--path_target_train', type=str, default='data/target_train.pkl',
+    parser.add_argument('--path_target_train',  
+                        type=str, 
+                        default='data/target_train.pkl',
                         help='Path to train target')
-    parser.add_argument('--path_target_test', type=str, default='data/target_test.pkl',
+    parser.add_argument('--path_target_test',  
+                        type=str,  
+                        default='data/target_test.pkl',
                         help='Path to test target')
-    parser.add_argument('--batch_size', type=int, default=32,
+    parser.add_argument('--batch_size',  
+                        type=int,  
+                        default=32,
                         help='Batch Size')
-    parser.add_argument('--dropout_input', type=float, default=0.0,
+    parser.add_argument('--dropout_input',  
+                        type=float,  
+                        default=0.0,
                         help='Dropout rate for embedding')
-    parser.add_argument('--dropout_context', type=float, default=0.0,
+    parser.add_argument('--dropout_context',  
+                        type=float,  
+                        default=0.0,
                         help='Dropout rate for context vector')
-    parser.add_argument('--l2', type=float, default=0.0,
+    parser.add_argument('--l2', 
+                        type=float, 
+                        default=0.0,
                         help='L2 regularitzation value')
-    parser.add_argument('--directory', type=str, default='model',
+    parser.add_argument('--directory',  
+                        type=str,  
+                        default='model',
                         help='Directory to save the model and the log file to')
-    parser.add_argument('--allow_negative', action='store_true',
+    parser.add_argument('--allow_negative',  
+                        action='store_true',
                         help='If argument is present the negative weights for embeddings/attentions\
                          will be allowed (original RETAIN implementaiton)')
     args = parser.parse_args()
-
     return args
 
-if __name__ == '__main__':
 
+if __name__ == '__main__':
     PARSER = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     ARGS = parse_arguments(PARSER)
     main(ARGS)

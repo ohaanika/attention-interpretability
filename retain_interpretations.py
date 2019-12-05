@@ -10,6 +10,7 @@ from keras.preprocessing import sequence
 from keras.constraints import Constraint
 from keras.utils.data_utils import Sequence
 
+
 def import_model(path):
     """Import model from given path and assign it to appropriate devices"""
     K.clear_session()
@@ -23,6 +24,7 @@ def import_model(path):
                                               [model.get_layer(name='softmax_1').output,\
                                                model.get_layer(name='beta_dense_0').output])
     return model, model_with_attention
+
 
 def get_model_parameters(model):
     """Extract model arguments that were used during training"""
@@ -63,6 +65,7 @@ def get_model_parameters(model):
         params.use_time = False
     return params
 
+
 class FreezePadding_Non_Negative(Constraint):
     """Freezes the last weight to be near 0 and prevents non-negative embeddings"""
     def __call__(self, w):
@@ -72,6 +75,7 @@ class FreezePadding_Non_Negative(Constraint):
         w *= appended
         return w
 
+
 class FreezePadding(Constraint):
     """Freezes the last weight to be near 0."""
     def __call__(self, w):
@@ -80,6 +84,7 @@ class FreezePadding(Constraint):
         appended = K.concatenate([other_weights, last_weight], axis=0)
         w *= appended
         return w
+
 
 class SequenceBuilder(Sequence):
     """Generate Batches of data"""
@@ -161,6 +166,7 @@ def read_data(model_parameters, path_data, path_dictionary):
     dictionary[model_parameters.num_codes] = 'PADDING'
     return data_output, dictionary
 
+
 def get_importances(alphas, betas, patient_data, model_parameters, dictionary):
     """Construct dataframes that interpret each visit of the given patient"""
     importances = []
@@ -203,12 +209,14 @@ def get_importances(alphas, betas, patient_data, model_parameters, dictionary):
 
     return importances
 
+
 def get_predictions(model, data, model_parameters, ARGS):
     """Get Model Predictions"""
     test_generator = SequenceBuilder(data, model_parameters, ARGS)
     preds = model.predict_generator(generator=test_generator, max_queue_size=15,
                                     use_multiprocessing=True, verbose=1, workers=3)
     return preds
+
 
 def main(ARGS):
     """Main Body of the code"""
@@ -237,25 +245,30 @@ def main(ARGS):
                 for visit in visits:
                     print(visit)
 
+
 def parse_arguments(parser):
     """Read user arguments"""
     parser.add_argument('--path_model',
-                        type=str, default='model/weights.01.hdf5',
+                        type=str, 
+                        default='model/weights.01.hdf5',
                         help='Path to the model to evaluate')
-    parser.add_argument('--path_data', type=str, default='data/data_test.pkl',
+    parser.add_argument('--path_data', 
+                        type=str, 
+                        default='data/data_test.pkl', 
                         help='Path to evaluation data')
-    parser.add_argument('--path_dictionary', type=str, default='data/dictionary.pkl',
+    parser.add_argument('--path_dictionary', 
+                        type=str, 
+                        default='data/dictionary.pkl',
                         help='Path to codes dictionary')
-    parser.add_argument('--batch_size', type=int, default=32,
+    parser.add_argument('--batch_size', 
+                        type=int, 
+                        default=32,
                         help='Batch size for initial probability predictions')
-    # parser.add_argument('--id', type=int, default=0,
-    #                     help='Id of the patient being interpreted')
     args = parser.parse_args()
-
     return args
 
-if __name__ == '__main__':
 
+if __name__ == '__main__':
     PARSER = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     ARGS = parse_arguments(PARSER)
     main(ARGS)

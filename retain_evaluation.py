@@ -14,6 +14,7 @@ from keras.constraints import Constraint
 from keras.utils.data_utils import Sequence
 from keras_exp.multigpu import get_available_gpus, make_parallel
 
+
 def import_model(path):
     """Import model from given path and assign it to appropriate devices"""
     K.clear_session()
@@ -26,6 +27,7 @@ def import_model(path):
     if len(get_available_gpus()) > 1:
         model = make_parallel(model)
     return model
+
 
 def get_model_parameters(model):
     """Extract model arguments that were used during training"""
@@ -49,6 +51,7 @@ def get_model_parameters(model):
         params.use_time = False
     return params
 
+
 class FreezePadding_Non_Negative(Constraint):
     """Freezes the last weight to be near 0 and prevents non-negative embeddings"""
     def __call__(self, w):
@@ -58,6 +61,7 @@ class FreezePadding_Non_Negative(Constraint):
         w *= appended
         return w
 
+
 class FreezePadding(Constraint):
     """Freezes the last weight to be near 0."""
     def __call__(self, w):
@@ -66,6 +70,7 @@ class FreezePadding(Constraint):
         appended = K.concatenate([other_weights, last_weight], axis=0)
         w *= appended
         return w
+
 
 def precision_recall(y_true, y_prob, graph):
     """Print Precision Recall Statistics and Graph"""
@@ -85,6 +90,7 @@ def precision_recall(y_true, y_prob, graph):
         plt.savefig('pr.png')
     else:
         print('Average Precision %0.3f' % average_precision)
+
 
 def probability_calibration(y_true, y_prob,graph):
     if graph:
@@ -118,6 +124,7 @@ def probability_calibration(y_true, y_prob,graph):
         plt.tight_layout()
         plt.savefig('calibration.png')
 
+
 def lift(y_true, y_prob, graph):
     """Print Precision Recall Statistics and Graph"""
     prevalence = sum(y_true)/len(y_true)
@@ -138,6 +145,7 @@ def lift(y_true, y_prob, graph):
     else:
         print('Average Lift %0.3f' % average_lift)
 
+
 def roc(y_true, y_prob, graph):
     """Print ROC Statistics and Graph"""
     roc_auc = roc_auc_score(y_true, y_prob)
@@ -156,6 +164,7 @@ def roc(y_true, y_prob, graph):
         plt.savefig('roc.png')
     else:
         print('ROC-AUC %0.3f' % roc_auc)
+
 
 class SequenceBuilder(Sequence):
     """Generate Batches of data"""
@@ -234,12 +243,14 @@ def read_data(model_parameters, ARGS):
         data_output.append(data['to_event'].values)
     return (data_output, y)
 
+
 def get_predictions(model, data, model_parameters, ARGS):
     """Get Model Predictions"""
     test_generator = SequenceBuilder(data, model_parameters, ARGS)
     preds = model.predict_generator(generator=test_generator, max_queue_size=15,
                                     use_multiprocessing=True, verbose=1, workers=3)
     return preds
+
 
 def main(ARGS):
     """Main Body of the code"""
@@ -256,27 +267,37 @@ def main(ARGS):
     lift(y, probabilities[:, 0, -1], ARGS.omit_graphs)
     probability_calibration(y, probabilities[:, 0, -1], ARGS.omit_graphs)
 
+
 def parse_arguments(parser):
     """Read user arguments"""
     parser.add_argument('--path_model',
-                        type=str, default='model/weights.01.hdf5',
+                        type=str,  
+                        default='model/weights.01.hdf5',
                         help='Path to the model to evaluate')
-    parser.add_argument('--path_data', type=str, default='data/data_test.pkl',
+    parser.add_argument('--path_data',  
+                        type=str,  
+                        default='data/data_test.pkl',
                         help='Path to evaluation data')
-    parser.add_argument('--path_target', type=str, default='data/target_test.pkl',
+    parser.add_argument('--path_target',  
+                        type=str,  
+                        default='data/target_test.pkl',
                         help='Path to evaluation target')
-    parser.add_argument('--omit_graphs', action='store_false',
+    parser.add_argument('--omit_graphs',  
+                        action='store_false',
                         help='Does not output graphs if argument is present')
-    parser.add_argument('--n_steps', type=int, default=300,
+    parser.add_argument('--n_steps',  
+                        type=int,  
+                        default=300,
                         help='Maximum number of visits after which the data is truncated')
-    parser.add_argument('--batch_size', type=int, default=32,
+    parser.add_argument('--batch_size',  
+                        type=int,  
+                        default=32,
                         help='Batch size for prediction (higher values are generally faster)')
     args = parser.parse_args()
-
     return args
 
-if __name__ == '__main__':
 
+if __name__ == '__main__':
     PARSER = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     ARGS = parse_arguments(PARSER)
     main(ARGS)
