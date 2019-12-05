@@ -173,10 +173,6 @@ if __name__ == '__main__':
     print('example review after encoding:')
     print()
     print(df['codes'][3])
-    print()
-    print('word_index:')
-    print()
-    print(tokenizer.word_index)
 
     # TODO: remove print statements later
     print()
