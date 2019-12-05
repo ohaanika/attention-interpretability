@@ -15,13 +15,6 @@ nltk.download('punkt')
 nltk.download('wordnet')
 
 
-def combine_files():
-    with open(os.path.join(ARGS.datapath, ARGS.dataset, ARGS.dataset+'.txt'), 'w') as outfile:
-        for split in ['train', 'valid', 'test']:
-            with open(os.path.join(ARGS.datapath, ARGS.dataset, ARGS.dataset+'-'+split+'.txt')) as infile:
-                outfile.write(infile.read())
-
-
 def get_data():
     data = pd.read_csv(os.path.join(ARGS.datapath, ARGS.dataset, ARGS.dataset+'.txt'), sep='\t', header=None)
     data.columns = ['review', 'target']
@@ -107,8 +100,6 @@ def pickle_dictionary(dictionary):
 
 def main(ARGS):
     """Main body of the code"""
-    # combine original dataset files combined into one
-    # combine_files() # TODO: comment out once this is done
     # get dataset as a data frame
     df = get_data()
     print()
