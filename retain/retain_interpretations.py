@@ -254,11 +254,11 @@ def parse_arguments(parser):
                         help='Path to the model to evaluate')
     parser.add_argument('--path_data', 
                         type=str, 
-                        default='data/data_test.pkl', 
+                        default='data/IMDB/data_test.pkl', 
                         help='Path to evaluation data')
     parser.add_argument('--path_dictionary', 
                         type=str, 
-                        default='data/dictionary.pkl',
+                        default='data/IMDB/dictionary.pkl',
                         help='Path to codes dictionary')
     parser.add_argument('--batch_size', 
                         type=int, 

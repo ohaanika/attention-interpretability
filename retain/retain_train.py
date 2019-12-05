@@ -350,19 +350,19 @@ def parse_arguments(parser):
                         help='Size of the recurrent layers')
     parser.add_argument('--path_data_train',  
                         type=str,  
-                        default='data/data_train.pkl',
+                        default='data/IMDB/data_train.pkl',
                         help='Path to train data')
     parser.add_argument('--path_data_test',  
                         type=str, 
-                        default='data/data_test.pkl',
+                        default='data/IMDB/data_test.pkl',
                         help='Path to test data')
     parser.add_argument('--path_target_train',  
                         type=str, 
-                        default='data/target_train.pkl',
+                        default='data/IMDB/target_train.pkl',
                         help='Path to train target')
     parser.add_argument('--path_target_test',  
                         type=str,  
-                        default='data/target_test.pkl',
+                        default='data/IMDB/target_test.pkl',
                         help='Path to test target')
     parser.add_argument('--batch_size',  
                         type=int,  

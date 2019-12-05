@@ -276,11 +276,11 @@ def parse_arguments(parser):
                         help='Path to the model to evaluate')
     parser.add_argument('--path_data',  
                         type=str,  
-                        default='data/data_test.pkl',
+                        default='data/IMDB/data_test.pkl',
                         help='Path to evaluation data')
     parser.add_argument('--path_target',  
                         type=str,  
-                        default='data/target_test.pkl',
+                        default='data/IMDB/target_test.pkl',
                         help='Path to evaluation target')
     parser.add_argument('--omit_graphs',  
                         action='store_false',
