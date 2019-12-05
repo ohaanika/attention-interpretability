@@ -96,7 +96,7 @@ def encode_data(data):
     # dictionary1 = tokenizer.word_index
     # dictionary2 = [[value, key] for key, value in dictionary1.items()]
     # dictionary = pd.DataFrame(data=dictionary2)
-    return encoded_data, tokenizer, dictionary
+    return encoded_data, tokenizer, dictionary2
 
 
 def split_data(df):
