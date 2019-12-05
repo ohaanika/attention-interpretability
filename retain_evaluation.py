@@ -259,7 +259,7 @@ def main(ARGS):
 def parse_arguments(parser):
     """Read user arguments"""
     parser.add_argument('--path_model',
-                        type=str, default='Model/weights.01.hdf5',
+                        type=str, default='model/weights.01.hdf5',
                         help='Path to the model to evaluate')
     parser.add_argument('--path_data', type=str, default='data/data_test.pkl',
                         help='Path to evaluation data')
