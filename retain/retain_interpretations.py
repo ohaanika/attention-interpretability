@@ -1,4 +1,4 @@
-"""This function will load the given data and continuosly interpet selected patients"""
+'''This function will load the given data and continuosly interpet selected patients'''
 import argparse
 import pickle as pickle
 import numpy as np
@@ -12,7 +12,7 @@ from keras.utils.data_utils import Sequence
 
 
 def import_model(path):
-    """Import model from given path and assign it to appropriate devices"""
+    '''Import model from given path and assign it to appropriate devices'''
     K.clear_session()
     config = tf.ConfigProto(allow_soft_placement=True, log_device_placement=False)
     config.gpu_options.allow_growth = True
@@ -27,9 +27,9 @@ def import_model(path):
 
 
 def get_model_parameters(model):
-    """Extract model arguments that were used during training"""
+    '''Extract model arguments that were used during training'''
     class ModelParameters:
-        """Helper class to store model parametesrs in the same format as ARGS"""
+        '''Helper class to store model parametesrs in the same format as ARGS'''
         def __init__(self):
             self.num_codes = None
             self.numeric_size = None
@@ -67,7 +67,7 @@ def get_model_parameters(model):
 
 
 class FreezePadding_Non_Negative(Constraint):
-    """Freezes the last weight to be near 0 and prevents non-negative embeddings"""
+    '''Freezes the last weight to be near 0 and prevents non-negative embeddings'''
     def __call__(self, w):
         other_weights = K.cast(K.greater_equal(w, 0)[:-1], K.floatx())
         last_weight = K.cast(K.equal(K.reshape(w[-1, :], (1, K.shape(w)[1])), 0.), K.floatx())
@@ -77,7 +77,7 @@ class FreezePadding_Non_Negative(Constraint):
 
 
 class FreezePadding(Constraint):
-    """Freezes the last weight to be near 0."""
+    '''Freezes the last weight to be near 0.'''
     def __call__(self, w):
         other_weights = K.cast(K.ones(K.shape(w))[:-1], K.floatx())
         last_weight = K.cast(K.equal(K.reshape(w[-1, :], (1, K.shape(w)[1])), 0.), K.floatx())
@@ -87,7 +87,7 @@ class FreezePadding(Constraint):
 
 
 class SequenceBuilder(Sequence):
-    """Generate Batches of data"""
+    '''Generate Batches of data'''
     def __init__(self, data, model_parameters, ARGS):
         #Receive all appropriate data
         self.codes = data[0]
@@ -105,17 +105,17 @@ class SequenceBuilder(Sequence):
         self.use_time = model_parameters.use_time
 
     def __len__(self):
-        """Compute number of batches.
+        '''Compute number of batches.
         Add extra batch if the data doesn't exactly divide into batches
-        """
+        '''
         if len(self.codes)%self.batch_size == 0:
             return len(self.codes) // self.batch_size
         return len(self.codes) // self.batch_size+1
 
     def __getitem__(self, idx):
-        """Get batch of specific index"""
+        '''Get batch of specific index'''
         def pad_data(data, length_visits, length_codes, pad_value=0):
-            """Pad data to desired number of visiits and codes inside each visit"""
+            '''Pad data to desired number of visiits and codes inside each visit'''
             zeros = np.full((len(data), length_visits, length_codes), pad_value)
             for steps, mat in zip(data, zeros):
                 if steps != [[-1]]:
@@ -151,7 +151,7 @@ class SequenceBuilder(Sequence):
 
 
 def read_data(model_parameters, path_data, path_dictionary):
-    """Read the data from provided paths and assign it into lists"""
+    '''Read the data from provided paths and assign it into lists'''
     data = pd.read_pickle(path_data)
     data_output = [data['codes'].values]
 
@@ -168,7 +168,7 @@ def read_data(model_parameters, path_data, path_dictionary):
 
 
 def get_importances(alphas, betas, patient_data, model_parameters, dictionary):
-    """Construct dataframes that interpret each visit of the given patient"""
+    '''Construct dataframes that interpret each visit of the given patient'''
     importances = []
     codes = patient_data[0][0]
     index = 1
@@ -211,7 +211,7 @@ def get_importances(alphas, betas, patient_data, model_parameters, dictionary):
 
 
 def get_predictions(model, data, model_parameters, ARGS):
-    """Get Model Predictions"""
+    '''Get Model Predictions'''
     test_generator = SequenceBuilder(data, model_parameters, ARGS)
     preds = model.predict_generator(generator=test_generator, max_queue_size=15,
                                     use_multiprocessing=True, verbose=1, workers=3)
@@ -219,7 +219,7 @@ def get_predictions(model, data, model_parameters, ARGS):
 
 
 def main(ARGS):
-    """Main body of the code"""
+    '''Main body of the code'''
     print('Loading Model and Extracting Parameters')
     model, model_with_attention = import_model(ARGS.path_model)
     model_parameters = get_model_parameters(model)
@@ -247,7 +247,7 @@ def main(ARGS):
 
 
 def parse_arguments(parser):
-    """Read user arguments"""
+    '''Read user arguments'''
     parser.add_argument('--path_model',
                         type=str, 
                         default='model/weights.01.hdf5',

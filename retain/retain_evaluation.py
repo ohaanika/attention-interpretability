@@ -1,4 +1,4 @@
-"""RETAIN Model Evaluation"""
+'''RETAIN Model Evaluation'''
 import argparse
 import numpy as np
 import pandas as pd
@@ -16,7 +16,7 @@ from keras_exp.multigpu import get_available_gpus, make_parallel
 
 
 def import_model(path):
-    """Import model from given path and assign it to appropriate devices"""
+    '''Import model from given path and assign it to appropriate devices'''
     K.clear_session()
     config = tf.ConfigProto(allow_soft_placement=True, log_device_placement=False)
     config.gpu_options.allow_growth = True
@@ -30,9 +30,9 @@ def import_model(path):
 
 
 def get_model_parameters(model):
-    """Extract model arguments that were used during training"""
+    '''Extract model arguments that were used during training'''
     class ModelParameters:
-        """Helper class to store model parametesrs in the same format as ARGS"""
+        '''Helper class to store model parametesrs in the same format as ARGS'''
         def __init__(self):
             self.num_codes = None
             self.numeric_size = None
@@ -53,7 +53,7 @@ def get_model_parameters(model):
 
 
 class FreezePadding_Non_Negative(Constraint):
-    """Freezes the last weight to be near 0 and prevents non-negative embeddings"""
+    '''Freezes the last weight to be near 0 and prevents non-negative embeddings'''
     def __call__(self, w):
         other_weights = K.cast(K.greater_equal(w, 0)[:-1], K.floatx())
         last_weight = K.cast(K.equal(K.reshape(w[-1, :], (1, K.shape(w)[1])), 0.), K.floatx())
@@ -63,7 +63,7 @@ class FreezePadding_Non_Negative(Constraint):
 
 
 class FreezePadding(Constraint):
-    """Freezes the last weight to be near 0."""
+    '''Freezes the last weight to be near 0.'''
     def __call__(self, w):
         other_weights = K.cast(K.ones(K.shape(w))[:-1], K.floatx())
         last_weight = K.cast(K.equal(K.reshape(w[-1, :], (1, K.shape(w)[1])), 0.), K.floatx())
@@ -73,7 +73,7 @@ class FreezePadding(Constraint):
 
 
 def precision_recall(y_true, y_prob, graph):
-    """Print Precision Recall Statistics and Graph"""
+    '''Print Precision Recall Statistics and Graph'''
     average_precision = average_precision_score(y_true, y_prob)
     if graph:
         precision, recall, _ = precision_recall_curve(y_true, y_prob)
@@ -85,7 +85,7 @@ def precision_recall(y_true, y_prob, graph):
         plt.ylabel('Precision: P(true+|predicted+)')
         plt.ylim([0.0, 1.05])
         plt.xlim([0.0, 1.0])
-        plt.legend(loc="lower left")
+        plt.legend(loc='lower left')
         print('Precision-Recall Curve saved to pr.png')
         plt.savefig('pr.png')
     else:
@@ -101,7 +101,7 @@ def probability_calibration(y_true, y_prob,graph):
         ax1 = plt.subplot2grid((3, 1), (0, 0), rowspan=2)
         ax2 = plt.subplot2grid((3, 1), (2, 0))
 
-        ax1.plot([0, 1], [0, 1], "k:", label="Perfectly calibrated")
+        ax1.plot([0, 1], [0, 1], 'k:', label='Perfectly calibrated')
 
         fraction_of_positives, mean_predicted_value = \
             calibration_curve(y_true, y_prob, n_bins=n_bins, normalize=True)
@@ -110,23 +110,23 @@ def probability_calibration(y_true, y_prob,graph):
                  label=name)
 
         ax2.hist(y_prob, range=(0, 1), bins=n_bins, label=name,
-                 histtype="step", lw=2)
+                 histtype='step', lw=2)
 
-        ax1.set_ylabel("Fraction of Positives")
+        ax1.set_ylabel('Fraction of Positives')
         ax1.set_ylim([-0.05, 1.05])
-        ax1.legend(loc="lower right")
+        ax1.legend(loc='lower right')
         ax1.set_title('Calibration Plots  (Reliability Curve)')
 
-        ax2.set_xlabel("Mean predicted value")
-        ax2.set_ylabel("Count")
-        ax2.legend(loc="upper center", ncol=2)
+        ax2.set_xlabel('Mean predicted value')
+        ax2.set_ylabel('Count')
+        ax2.legend(loc='upper center', ncol=2)
         print('Probability Calibration Curves saved to calibration.png')
         plt.tight_layout()
         plt.savefig('calibration.png')
 
 
 def lift(y_true, y_prob, graph):
-    """Print Precision Recall Statistics and Graph"""
+    '''Print Precision Recall Statistics and Graph'''
     prevalence = sum(y_true)/len(y_true)
     average_lift = average_precision_score(y_true, y_prob) / prevalence
     if graph:
@@ -139,7 +139,7 @@ def lift(y_true, y_prob, graph):
         plt.xlabel('Recall: P(predicted+|true+)')
         plt.ylabel('Lift')
         plt.xlim([0.0, 1.0])
-        plt.legend(loc="lower left")
+        plt.legend(loc='lower left')
         print('Lift-Recall Curve saved to lift.png')
         plt.savefig('lift')
     else:
@@ -147,7 +147,7 @@ def lift(y_true, y_prob, graph):
 
 
 def roc(y_true, y_prob, graph):
-    """Print ROC Statistics and Graph"""
+    '''Print ROC Statistics and Graph'''
     roc_auc = roc_auc_score(y_true, y_prob)
     if graph:
         fpr, tpr, _ = roc_curve(y_true, y_prob)
@@ -159,7 +159,7 @@ def roc(y_true, y_prob, graph):
         plt.xlabel('False Positive Rate (1 - Specifity)')
         plt.ylabel('True Positive Rate (Sensitivity)')
         plt.title('Receiver Operating Characteristic')
-        plt.legend(loc="lower right")
+        plt.legend(loc='lower right')
         print('ROC Curve saved to roc.png')
         plt.savefig('roc.png')
     else:
@@ -167,7 +167,7 @@ def roc(y_true, y_prob, graph):
 
 
 class SequenceBuilder(Sequence):
-    """Generate Batches of data"""
+    '''Generate Batches of data'''
     def __init__(self, data, model_parameters, ARGS):
         #Receive all appropriate data
         self.codes = data[0]
@@ -186,17 +186,17 @@ class SequenceBuilder(Sequence):
         self.n_steps = ARGS.n_steps
 
     def __len__(self):
-        """Compute number of batches.
+        '''Compute number of batches.
         Add extra batch if the data doesn't exactly divide into batches
-        """
+        '''
         if len(self.codes)%self.batch_size == 0:
             return len(self.codes) // self.batch_size
         return len(self.codes) // self.batch_size+1
 
     def __getitem__(self, idx):
-        """Get batch of specific index"""
+        '''Get batch of specific index'''
         def pad_data(data, length_visits, length_codes, pad_value=0):
-            """Pad data to desired number of visiits and codes inside each visit"""
+            '''Pad data to desired number of visiits and codes inside each visit'''
             zeros = np.full((len(data), length_visits, length_codes), pad_value)
             for steps, mat in zip(data, zeros):
                 if steps != [[-1]]:
@@ -232,7 +232,7 @@ class SequenceBuilder(Sequence):
 
 
 def read_data(model_parameters, ARGS):
-    """Read the data from provided paths and assign it into lists"""
+    '''Read the data from provided paths and assign it into lists'''
     data = pd.read_pickle(ARGS.path_data)
     y = pd.read_pickle(ARGS.path_target)['target'].values
     data_output = [data['codes'].values]
@@ -245,7 +245,7 @@ def read_data(model_parameters, ARGS):
 
 
 def get_predictions(model, data, model_parameters, ARGS):
-    """Get Model Predictions"""
+    '''Get Model Predictions'''
     test_generator = SequenceBuilder(data, model_parameters, ARGS)
     preds = model.predict_generator(generator=test_generator, max_queue_size=15,
                                     use_multiprocessing=True, verbose=1, workers=3)
@@ -253,7 +253,7 @@ def get_predictions(model, data, model_parameters, ARGS):
 
 
 def main(ARGS):
-    """Main body of the code"""
+    '''Main body of the code'''
     print('Loading Model and Extracting Parameters')
     model = import_model(ARGS.path_model)
     model_parameters = get_model_parameters(model)
@@ -269,7 +269,7 @@ def main(ARGS):
 
 
 def parse_arguments(parser):
-    """Read user arguments"""
+    '''Read user arguments'''
     parser.add_argument('--path_model',
                         type=str,  
                         default='model/weights.01.hdf5',

@@ -1,4 +1,4 @@
-"""Implementation of RETAIN Keras from Edward Choi"""
+'''Implementation of RETAIN Keras from Edward Choi'''
 import os
 import argparse
 import numpy as np
@@ -17,7 +17,7 @@ from sklearn.metrics import roc_auc_score, average_precision_score, precision_re
 
 
 class SequenceBuilder(Sequence):
-    """Generate Batches of data"""
+    '''Generate Batches of data'''
     def __init__(self, data, target, batch_size, ARGS, target_out=True):
         #Receive all appropriate data
         self.codes = data[0]
@@ -39,17 +39,17 @@ class SequenceBuilder(Sequence):
         #self.balance = (1-(float(sum(target))/len(target)))/(float(sum(target))/len(target))
 
     def __len__(self):
-        """Compute number of batches.
+        '''Compute number of batches.
         Add extra batch if the data doesn't exactly divide into batches
-        """
+        '''
         if len(self.codes)%self.batch_size == 0:
             return len(self.codes) // self.batch_size
         return len(self.codes) // self.batch_size+1
 
     def __getitem__(self, idx):
-        """Get batch of specific index"""
+        '''Get batch of specific index'''
         def pad_data(data, length_visits, length_codes, pad_value=0):
-            """Pad data to desired number of visiits and codes inside each visit"""
+            '''Pad data to desired number of visiits and codes inside each visit'''
             zeros = np.full((len(data), length_visits, length_codes), pad_value)
             for steps, mat in zip(data, zeros):
                 if steps != [[-1]]:
@@ -92,7 +92,7 @@ class SequenceBuilder(Sequence):
 
 
 class FreezePadding_Non_Negative(Constraint):
-    """Freezes the last weight to be near 0 and prevents non-negative embeddings"""
+    '''Freezes the last weight to be near 0 and prevents non-negative embeddings'''
     def __call__(self, w):
         other_weights = K.cast(K.greater_equal(w, 0)[:-1], K.floatx())
         last_weight = K.cast(K.equal(K.reshape(w[-1, :], (1, K.shape(w)[1])), 0.), K.floatx())
@@ -102,7 +102,7 @@ class FreezePadding_Non_Negative(Constraint):
 
 
 class FreezePadding(Constraint):
-    """Freezes the last weight to be near 0."""
+    '''Freezes the last weight to be near 0.'''
     def __call__(self, w):
         other_weights = K.cast(K.ones(K.shape(w))[:-1], K.floatx())
         last_weight = K.cast(K.equal(K.reshape(w[-1, :], (1, K.shape(w)[1])), 0.), K.floatx())
@@ -112,7 +112,7 @@ class FreezePadding(Constraint):
 
 
 def read_data(ARGS):
-    """Read the data from provided paths and assign it into lists"""
+    '''Read the data from provided paths and assign it into lists'''
     data_train_df = pd.read_pickle(ARGS.path_data_train)
     data_test_df = pd.read_pickle(ARGS.path_data_test)
     y_train = pd.read_pickle(ARGS.path_target_train)['target'].values
@@ -130,9 +130,9 @@ def read_data(ARGS):
 
 
 def model_create(ARGS):
-    """Create and Compile model and assign it to provided devices"""
+    '''Create and Compile model and assign it to provided devices'''
     def retain(ARGS):
-        """Create the model"""
+        '''Create the model'''
 
         #Define the constant for model saving
         reshape_size = ARGS.emb_size+ARGS.numeric_size
@@ -149,7 +149,7 @@ def model_create(ARGS):
         glist = get_available_gpus()
 
         def reshape(data):
-            """Reshape the context vectors to 3D vector"""
+            '''Reshape the context vectors to 3D vector'''
             return K.reshape(x=data, shape=(K.shape(data)[0], 1, reshape_size))
 
         #Code Input
@@ -246,15 +246,15 @@ def model_create(ARGS):
 
     #Compile the model - adamax has produced best results in our experiments
     model_final.compile(optimizer='adamax', loss='binary_crossentropy', metrics=['accuracy'],
-                        sample_weight_mode="temporal")
+                        sample_weight_mode='temporal')
 
     return model_final
 
 
 def create_callbacks(model, data, ARGS):
-    """Create the checkpoint and logging callbacks"""
+    '''Create the checkpoint and logging callbacks'''
     class LogEval(Callback):
-        """Logging Callback"""
+        '''Logging Callback'''
         def __init__(self, filepath, model, data, ARGS, interval=1):
 
             super(Callback, self).__init__()
@@ -283,10 +283,10 @@ def create_callbacks(model, data, ARGS):
                 else:
                     append_write = 'w'
                 with open(self.filepath, append_write) as file_output:
-                    file_output.write("\nEpoch: {:d}- ROC-AUC: {:.6f} ; PR-AUC: {:.6f}"\
+                    file_output.write('\nEpoch: {:d}- ROC-AUC: {:.6f} ; PR-AUC: {:.6f}'\
                             .format(epoch, score_roc, score_pr))
 
-                print("\nEpoch: {:d} - ROC-AUC: {:.6f} PR-AUC: {:.6f}"\
+                print('\nEpoch: {:d} - ROC-AUC: {:.6f} PR-AUC: {:.6f}'\
                       .format(epoch, score_roc, score_pr))
 
 
@@ -297,7 +297,7 @@ def create_callbacks(model, data, ARGS):
 
 
 def train_model(model, data_train, y_train, data_test, y_test, ARGS):
-    """Train the Model with appropriate callbacks and generator"""
+    '''Train the Model with appropriate callbacks and generator'''
     checkpoint, log = create_callbacks(model, (data_test, y_test), ARGS)
     train_generator = SequenceBuilder(data=data_train, target=y_train,
                                       batch_size=ARGS.batch_size, ARGS=ARGS)
@@ -307,7 +307,7 @@ def train_model(model, data_train, y_train, data_test, y_test, ARGS):
 
 
 def main(ARGS):
-    """Main body of the code"""
+    '''Main body of the code'''
     print('Reading Data')
     data_train, y_train, data_test, y_test = read_data(ARGS)
 
@@ -320,7 +320,7 @@ def main(ARGS):
 
 
 def parse_arguments(parser):
-    """Read user arguments"""
+    '''Read user arguments'''
     parser.add_argument('--num_codes',
                         type=int, 
                         default=150850, 

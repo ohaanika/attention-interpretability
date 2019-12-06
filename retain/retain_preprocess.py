@@ -99,7 +99,7 @@ def pickle_dictionary(dictionary):
 
 
 def main(ARGS):
-    """Main body of the code"""
+    '''Main body of the code'''
     # get dataset as a data frame
     df = get_data()
     print()
@@ -140,7 +140,7 @@ def main(ARGS):
 
 
 def parse_arguments(parser):
-    """Read user arguments"""
+    '''Read user arguments'''
     parser.add_argument('--path_data_raw', 
                         type=str,  
                         default='../data',  
