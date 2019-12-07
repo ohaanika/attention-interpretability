@@ -15,8 +15,8 @@ from tqdm import tqdm
 import resource
 import argparse
 
-data_dir = 'data/hanrnn/'
-vocabs_dir = 'data/hanrnn/'
+data_dir = 'data/IMDB/'
+vocabs_dir = 'data/IMDB/'
 
 if not os.path.isdir(vocabs_dir):
     os.makedirs(vocabs_dir)
