@@ -143,10 +143,10 @@ if __name__ == '__main__':
 
     # filenames
     imdb_data_file = os.path.join('data', 'IMDB', 'IMDB.txt')
-    imdb_output_full_data_filename = os.path.join('data', 'hanrnn', 'IMDB.tsv')
-    imdb_output_train_filename = os.path.join('data', 'hanrnn', 'IMDB_train.tsv')
-    imdb_output_dev_filename = os.path.join('data', 'hanrnn', 'IMDB_dev.tsv')
-    imdb_output_test_filename = os.path.join('data', 'hanrnn', 'IMDB_test.tsv')
+    imdb_output_full_data_filename = os.path.join('data', 'IMDB', 'IMDB.tsv')
+    imdb_output_train_filename = os.path.join('data', 'IMDB', 'IMDB_train.tsv')
+    imdb_output_dev_filename = os.path.join('data', 'IMDB', 'IMDB_dev.tsv')
+    imdb_output_test_filename = os.path.join('data', 'IMDB', 'IMDB_test.tsv')
 
     # get dataset as a data frame
     df = get_data()
