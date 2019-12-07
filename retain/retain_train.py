@@ -207,9 +207,11 @@ def model_create(ARGS):
         alpha_out = alpha(time_embs)
         alpha_out = L.TimeDistributed(alpha_dense, name='alpha_dense_0')(alpha_out)
         alpha_out = L.Softmax(axis=1)(alpha_out)
+        print(type(alpha_out)) # TODO: remove this later!
         #Compute beta, codes attention
         beta_out = beta(time_embs)
         beta_out = L.TimeDistributed(beta_dense, name='beta_dense_0')(beta_out)
+        print(type(beta_out)) # TODO: remove this later!
         #Compute context vector based on attentions and embeddings
         c_t = L.Multiply()([alpha_out, beta_out, full_embs])
         c_t = L.Lambda(lambda x: K.sum(x, axis=1))(c_t)
