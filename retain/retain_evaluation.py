@@ -148,6 +148,8 @@ def lift(y_true, y_prob, graph):
 
 def roc(y_true, y_prob, graph):
     '''Print ROC Statistics and Graph'''
+    for y in np.nditer(y_prob, op_flags=['readwrite']):
+        y = round(y)
     print(y_true[:2], y_prob[:2])
     roc_auc = roc_auc_score(y_true, y_prob)
     if graph:
