@@ -89,7 +89,7 @@ def precision_recall(y_true, y_prob, graph):
         print('Precision-Recall Curve saved to pr.png')
         plt.savefig('pr.png')
     else:
-        print('Average Precision %0.3f' % average_precision)
+        print('Average Precision: %0.3f' % average_precision)
 
 
 def probability_calibration(y_true, y_prob,graph):
@@ -143,7 +143,7 @@ def lift(y_true, y_prob, graph):
         print('Lift-Recall Curve saved to lift.png')
         plt.savefig('lift')
     else:
-        print('Average Lift %0.3f' % average_lift)
+        print('Average Lift: %0.3f' % average_lift)
 
 
 def roc(y_true, y_prob, graph):
@@ -163,13 +163,12 @@ def roc(y_true, y_prob, graph):
         print('ROC Curve saved to roc.png')
         plt.savefig('roc.png')
     else:
-        print('ROC-AUC %0.3f' % roc_auc)
+        print('ROC-AUC: %0.3f' % roc_auc)
 
 
 def accuracy(y_true, y_prob, graph):
     '''Print Accuracy Statistics and Graph'''
     y_prob = y_prob.round()
-    print(y_true[:2], y_prob[:2])
     acc = accuracy_score(y_true, y_prob)
     if graph:
         fpr, tpr, _ = roc_curve(y_true, y_prob)
@@ -185,7 +184,7 @@ def accuracy(y_true, y_prob, graph):
         print('Accuracy Curve saved to accuracy.png')
         plt.savefig('accuracy.png')
     else:
-        print('ACC %0.3f' % acc)
+        print('Accuracy: %0.3f' % acc)
 
 
 class SequenceBuilder(Sequence):
@@ -284,12 +283,12 @@ def main(ARGS):
     print('Predicting the probabilities')
     probabilities = get_predictions(model, data, model_parameters, ARGS)
     print('Evaluating')
-    # TODO: test out printing accuracy, for now reverting back
+    # TODO: test out printing accuracy, uncomment out other metrics later
     accuracy(y, probabilities[:, 0, -1], ARGS.omit_graphs)
-    # roc(y, probabilities[:, 0, -1], ARGS.omit_graphs)
-    # precision_recall(y, probabilities[:, 0, -1], ARGS.omit_graphs)
-    # lift(y, probabilities[:, 0, -1], ARGS.omit_graphs)
-    # probability_calibration(y, probabilities[:, 0, -1], ARGS.omit_graphs)
+    roc(y, probabilities[:, 0, -1], ARGS.omit_graphs)
+    precision_recall(y, probabilities[:, 0, -1], ARGS.omit_graphs)
+    lift(y, probabilities[:, 0, -1], ARGS.omit_graphs)
+    probability_calibration(y, probabilities[:, 0, -1], ARGS.omit_graphs)
 
 
 def parse_arguments(parser):
@@ -306,9 +305,9 @@ def parse_arguments(parser):
                         type=str,  
                         default='data/IMDB/target_test.pkl',
                         help='Path to evaluation target')
-    parser.add_argument('--omit_graphs',  
-                        action='store_false',
-                        help='Does not output graphs if argument is present')
+    parser.add_argument('--save_graphs',  
+                        action='store_true',
+                        help='Output graphs if argument is present')
     parser.add_argument('--n_steps',  
                         type=int,  
                         default=300,
