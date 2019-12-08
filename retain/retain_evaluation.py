@@ -282,12 +282,12 @@ def main(ARGS):
     print('Predicting the probabilities')
     probabilities = get_predictions(model, data, model_parameters, ARGS)
     print('Evaluating')
-    accuracy(y, probabilities[:, 0, -1], ARGS.omit_graphs)
-    # TODO: undo commenting out the following later
-    # roc(y, probabilities[:, 0, -1], ARGS.omit_graphs)
-    # precision_recall(y, probabilities[:, 0, -1], ARGS.omit_graphs)
-    # lift(y, probabilities[:, 0, -1], ARGS.omit_graphs)
-    # probability_calibration(y, probabilities[:, 0, -1], ARGS.omit_graphs)
+    # TODO: test out printing accuracy, for now reverting back
+    # accuracy(y, probabilities[:, 0, -1], ARGS.omit_graphs)
+    roc(y, probabilities[:, 0, -1], ARGS.omit_graphs)
+    precision_recall(y, probabilities[:, 0, -1], ARGS.omit_graphs)
+    lift(y, probabilities[:, 0, -1], ARGS.omit_graphs)
+    probability_calibration(y, probabilities[:, 0, -1], ARGS.omit_graphs)
 
 
 def parse_arguments(parser):
