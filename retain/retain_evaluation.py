@@ -295,7 +295,7 @@ def parse_arguments(parser):
     '''Read user arguments'''
     parser.add_argument('--path_model',
                         type=str,  
-                        default='model/weights.03.hdf5',
+                        default='model/weights.01.hdf5',
                         help='Path to the model to evaluate')
     parser.add_argument('--path_data',  
                         type=str,  
