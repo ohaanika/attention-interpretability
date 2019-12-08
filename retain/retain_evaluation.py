@@ -284,11 +284,11 @@ def main(ARGS):
     probabilities = get_predictions(model, data, model_parameters, ARGS)
     print('Evaluating')
     # TODO: test out printing accuracy, uncomment out other metrics later
-    accuracy(y, probabilities[:, 0, -1], ARGS.omit_graphs)
-    roc(y, probabilities[:, 0, -1], ARGS.omit_graphs)
-    precision_recall(y, probabilities[:, 0, -1], ARGS.omit_graphs)
-    lift(y, probabilities[:, 0, -1], ARGS.omit_graphs)
-    probability_calibration(y, probabilities[:, 0, -1], ARGS.omit_graphs)
+    accuracy(y, probabilities[:, 0, -1], ARGS.save_graphs)
+    roc(y, probabilities[:, 0, -1], ARGS.save_graphs)
+    precision_recall(y, probabilities[:, 0, -1], ARGS.save_graphs)
+    lift(y, probabilities[:, 0, -1], ARGS.save_graphs)
+    probability_calibration(y, probabilities[:, 0, -1], ARGS.save_graphs)
 
 
 def parse_arguments(parser):
