@@ -2,7 +2,7 @@
 import argparse
 import numpy as np
 import pandas as pd
-from sklearn.metrics import roc_auc_score, average_precision_score,\
+from sklearn.metrics import accuracy_score, roc_auc_score, average_precision_score,\
                             precision_recall_curve, roc_curve
 from sklearn.calibration import calibration_curve
 import matplotlib.pyplot as plt
@@ -166,6 +166,26 @@ def roc(y_true, y_prob, graph):
         print('ROC-AUC %0.3f' % roc_auc)
 
 
+def accuracy(y_true, y_prob, graph):
+    '''Print Accuracy Statistics and Graph'''
+    acc = accuracy_score(y_true, y_prob)
+    if graph:
+        fpr, tpr, _ = roc_curve(y_true, y_prob)
+        plt.plot(fpr, tpr, color='darkorange', lw=2,
+                 label='Accuracy curve (Area = %0.3f)'% acc)
+        plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+        #plt.xlim([0.0, 1.0])
+        #plt.ylim([0.0, 1.05])
+        #plt.xlabel('x-axis (edit)')
+        #plt.ylabel('y-axis (edit)')
+        #plt.title('title (edit)')
+        plt.legend(loc='lower right')
+        print('Accuracy Curve saved to accuracy.png')
+        plt.savefig('accuracy.png')
+    else:
+        print('ACC %0.3f' % acc)
+
+
 class SequenceBuilder(Sequence):
     '''Generate Batches of data'''
     def __init__(self, data, model_parameters, ARGS):
@@ -262,10 +282,12 @@ def main(ARGS):
     print('Predicting the probabilities')
     probabilities = get_predictions(model, data, model_parameters, ARGS)
     print('Evaluating')
-    roc(y, probabilities[:, 0, -1], ARGS.omit_graphs)
-    precision_recall(y, probabilities[:, 0, -1], ARGS.omit_graphs)
-    lift(y, probabilities[:, 0, -1], ARGS.omit_graphs)
-    probability_calibration(y, probabilities[:, 0, -1], ARGS.omit_graphs)
+    accuracy(y, probabilities[:, 0, -1], ARGS.omit_graphs)
+    # TODO: undo commenting out the following later
+    # roc(y, probabilities[:, 0, -1], ARGS.omit_graphs)
+    # precision_recall(y, probabilities[:, 0, -1], ARGS.omit_graphs)
+    # lift(y, probabilities[:, 0, -1], ARGS.omit_graphs)
+    # probability_calibration(y, probabilities[:, 0, -1], ARGS.omit_graphs)
 
 
 def parse_arguments(parser):
