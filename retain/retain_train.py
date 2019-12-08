@@ -199,11 +199,6 @@ def model_create(ARGS):
                                           return_sequences=True, implementation=2),
                                    name='beta')
 
-        print("ALPHA TYPE:", type(alpha)) # TODO: remove this later!
-        print("ALPHA LEN:", len(alpha)) # TODO: remove this later!
-        print("BETA TYPE:", type(beta)) # TODO: remove this later!
-        print("BETA LEN:", len(beta)) # TODO: remove this later!
-
         alpha_dense = L.Dense(1, kernel_regularizer=l2(ARGS.l2))
         beta_dense = L.Dense(ARGS.emb_size+ARGS.numeric_size,
                              activation=beta_activation, kernel_regularizer=l2(ARGS.l2))
