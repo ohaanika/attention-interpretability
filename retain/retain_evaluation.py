@@ -148,7 +148,7 @@ def lift(y_true, y_prob, graph):
 
 def roc(y_true, y_prob, graph):
     '''Print ROC Statistics and Graph'''
-    print(type(y_true), type(y_prob))
+    print(y_true[:2], y_prob[:2])
     roc_auc = roc_auc_score(y_true, y_prob)
     if graph:
         fpr, tpr, _ = roc_curve(y_true, y_prob)
