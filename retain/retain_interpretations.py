@@ -218,6 +218,36 @@ def get_predictions(model, data, model_parameters, ARGS):
     return preds
 
 
+# TODO: temporarily comment out old code, may delete later if successfully updated
+# def main(ARGS):
+#     '''Main body of the code'''
+#     print('Loading Model and Extracting Parameters')
+#     model, model_with_attention = import_model(ARGS.path_model)
+#     model_parameters = get_model_parameters(model)
+#     print('Reading Data')
+#     data, dictionary = read_data(model_parameters, ARGS.path_data, ARGS.path_dictionary)
+#     data_generator = SequenceBuilder(data, model_parameters, ARGS)
+#     probabilities = get_predictions(model, data, model_parameters, ARGS)
+#     ARGS.batch_size = 1
+#     data_generator = SequenceBuilder(data, model_parameters, ARGS)
+#     while 1:
+#         patient_id = int(input('Input Patient Order Number: '))
+#         if patient_id > len(data[0]) - 1:
+#             print('Invalid ID, there are only {} patients'.format(len(data[0])))
+#         elif patient_id < 0:
+#             print('Only Positive IDs are accepted')
+#         else:
+#             print('Patients probability: {}'.format(probabilities[patient_id, 0, 0]))
+#             proceed = str(input('Output predictions? (y/n): '))
+#             if proceed == 'y':
+#                 patient_data = data_generator.__getitem__(patient_id)
+#                 proba, alphas, betas = model_with_attention.predict_on_batch(patient_data)
+#                 visits = get_importances(alphas[0], betas[0], patient_data, model_parameters, dictionary)
+#                 for visit in visits:
+#                     print(visit)
+
+
+# TODO: edit the following with Jenny's version
 def main(ARGS):
     '''Main body of the code'''
     print('Loading Model and Extracting Parameters')
@@ -229,21 +259,19 @@ def main(ARGS):
     probabilities = get_predictions(model, data, model_parameters, ARGS)
     ARGS.batch_size = 1
     data_generator = SequenceBuilder(data, model_parameters, ARGS)
-    while 1:
-        patient_id = int(input('Input Patient Order Number: '))
-        if patient_id > len(data[0]) - 1:
-            print('Invalid ID, there are only {} patients'.format(len(data[0])))
-        elif patient_id < 0:
-            print('Only Positive IDs are accepted')
-        else:
-            print('Patients probability: {}'.format(probabilities[patient_id, 0, 0]))
-            proceed = str(input('Output predictions? (y/n): '))
-            if proceed == 'y':
-                patient_data = data_generator.__getitem__(patient_id)
-                proba, alphas, betas = model_with_attention.predict_on_batch(patient_data)
-                visits = get_importances(alphas[0], betas[0], patient_data, model_parameters, dictionary)
-                for visit in visits:
-                    print(visit)
+    probability = []
+    review_dict = {}
+    for i in range(15000):
+        probability.append(probabilities[i, 0, 0])
+        patient_data = data_generator.__getitem__(i)
+        proba, alphas, betas = model_with_attention.predict_on_batch(patient_data)
+        visits = get_importances(alphas[0], betas[0], patient_data, model_parameters, dictionary)
+        review_dict[str(i)] = visits
+    with open("probabilities.pkl", "wb") as handle:
+        pickle.dump(probability, handle)
+    with open("review_dict.pkl", "wb") as handle:
+        pickle.dump(review_dict, handle)
+    return probability, review_dict
 
 
 def parse_arguments(parser):
