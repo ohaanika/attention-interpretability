@@ -148,8 +148,6 @@ def lift(y_true, y_prob, graph):
 
 def roc(y_true, y_prob, graph):
     '''Print ROC Statistics and Graph'''
-    y_prob = y_prob.round()
-    print(y_true[:2], y_prob[:2])
     roc_auc = roc_auc_score(y_true, y_prob)
     if graph:
         fpr, tpr, _ = roc_curve(y_true, y_prob)
@@ -170,6 +168,8 @@ def roc(y_true, y_prob, graph):
 
 def accuracy(y_true, y_prob, graph):
     '''Print Accuracy Statistics and Graph'''
+    y_prob = y_prob.round()
+    print(y_true[:2], y_prob[:2])
     acc = accuracy_score(y_true, y_prob)
     if graph:
         fpr, tpr, _ = roc_curve(y_true, y_prob)
@@ -285,11 +285,11 @@ def main(ARGS):
     probabilities = get_predictions(model, data, model_parameters, ARGS)
     print('Evaluating')
     # TODO: test out printing accuracy, for now reverting back
-    # accuracy(y, probabilities[:, 0, -1], ARGS.omit_graphs)
-    roc(y, probabilities[:, 0, -1], ARGS.omit_graphs)
-    precision_recall(y, probabilities[:, 0, -1], ARGS.omit_graphs)
-    lift(y, probabilities[:, 0, -1], ARGS.omit_graphs)
-    probability_calibration(y, probabilities[:, 0, -1], ARGS.omit_graphs)
+    accuracy(y, probabilities[:, 0, -1], ARGS.omit_graphs)
+    # roc(y, probabilities[:, 0, -1], ARGS.omit_graphs)
+    # precision_recall(y, probabilities[:, 0, -1], ARGS.omit_graphs)
+    # lift(y, probabilities[:, 0, -1], ARGS.omit_graphs)
+    # probability_calibration(y, probabilities[:, 0, -1], ARGS.omit_graphs)
 
 
 def parse_arguments(parser):
