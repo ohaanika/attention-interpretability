@@ -167,6 +167,50 @@ def read_data(model_parameters, path_data, path_dictionary):
     return data_output, dictionary
 
 
+# TODO: temporarily comment out old code, may delete later if successfully updated
+# def get_importances(alphas, betas, patient_data, model_parameters, dictionary):
+#     '''Construct dataframes that interpret each visit of the given patient'''
+#     importances = []
+#     codes = patient_data[0][0]
+#     index = 1
+#     if model_parameters.numeric_size:
+#         numerics = patient_data[index][0]
+#         index += 1
+#     if model_parameters.use_time:
+#         time = patient_data[index][0].reshape((len(codes),))
+#     else:
+#         time = np.arange(len(codes))
+#     for i in range(len(patient_data[0][0])):
+#         visit_codes = codes[i]
+#         visit_beta = betas[i]
+#         visit_alpha = alphas[i][0]
+#         relevant_indices = np.append(visit_codes,
+#                                      range(model_parameters.num_codes+1,
+#                                            model_parameters.num_codes+1+model_parameters.numeric_size))\
+#                                           .astype(np.int32)
+#         values = np.full(fill_value='Diagnosed', shape=(len(visit_codes),))
+#         if model_parameters.numeric_size:
+#             visit_numerics = numerics[i]
+#             values = np.append(values, visit_numerics)
+#         values_mask = np.array([1. if value == 'Diagnosed' else value for value in values], dtype=np.float32)
+#         beta_scaled = visit_beta * model_parameters.emb_weights[relevant_indices]
+#         output_scaled = np.dot(beta_scaled, model_parameters.output_weights)
+#         alpha_scaled = values_mask * visit_alpha * output_scaled
+#         df_visit = pd.DataFrame({'status':values,
+#                                  'feature': [dictionary[index] for index in relevant_indices],
+#                                  'importance_feature':alpha_scaled[:, 0],
+#                                  'importance_visit':visit_alpha,
+#                                  'to_event':time[i]},
+#                                 columns=['status', 'feature', 'importance_feature',
+#                                          'importance_visit', 'to_event'])
+#         df_visit = df_visit[df_visit['feature'] != 'PADDING']
+#         df_visit.sort_values(['importance_feature'], ascending=False, inplace=True)
+#         importances.append(df_visit)
+
+#     return importances
+
+
+# TODO: Jenny's version
 def get_importances(alphas, betas, patient_data, model_parameters, dictionary):
     '''Construct dataframes that interpret each visit of the given patient'''
     importances = []
@@ -175,7 +219,6 @@ def get_importances(alphas, betas, patient_data, model_parameters, dictionary):
     if model_parameters.numeric_size:
         numerics = patient_data[index][0]
         index += 1
-
     if model_parameters.use_time:
         time = patient_data[index][0].reshape((len(codes),))
     else:
@@ -196,13 +239,13 @@ def get_importances(alphas, betas, patient_data, model_parameters, dictionary):
         beta_scaled = visit_beta * model_parameters.emb_weights[relevant_indices]
         output_scaled = np.dot(beta_scaled, model_parameters.output_weights)
         alpha_scaled = values_mask * visit_alpha * output_scaled
-        df_visit = pd.DataFrame({'status':values,
+        df_visit = pd.DataFrame({
                                  'feature': [dictionary[index] for index in relevant_indices],
                                  'importance_feature':alpha_scaled[:, 0],
-                                 'importance_visit':visit_alpha,
-                                 'to_event':time[i]},
-                                columns=['status', 'feature', 'importance_feature',
-                                         'importance_visit', 'to_event'])
+                                 'importance_visit':visit_alpha
+                                 },
+                                columns=['feature', 'importance_feature',
+                                         'importance_visit'])
         df_visit = df_visit[df_visit['feature'] != 'PADDING']
         df_visit.sort_values(['importance_feature'], ascending=False, inplace=True)
         importances.append(df_visit)
@@ -247,7 +290,7 @@ def get_predictions(model, data, model_parameters, ARGS):
 #                     print(visit)
 
 
-# TODO: edit the following with Jenny's version
+# TODO: Jenny's version
 def main(ARGS):
     '''Main body of the code'''
     print('Loading Model and Extracting Parameters')
