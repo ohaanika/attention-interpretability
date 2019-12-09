@@ -1,0 +1,65 @@
+example review before any preprocessing:
+
+It's a strange feeling to sit alone in a theater occupied by parents and their rollicking kids. I felt like instead of a movie ticket, I should have been given a NAMBLA membership.<br /><br />Based upon Thomas Rockwell's respected Book, How To Eat Fried Worms starts like any children's story: moving to a new town. The new kid, fifth grader Billy Forrester was once popular, but has to start anew. Making friends is never easy, especially when the only prospect is Poindexter Adam. Or Erica, who at 4 1/2 feet, is a giant.<br /><br />Further complicating things is Joe the bully. His freckled face and sleeveless shirts are daunting. He antagonizes kids with the Death Ring: a Crackerjack ring that is rumored to kill you if you're punched with it. But not immediately. No, the death ring unleashes a poison that kills you in the eight grade.<br /><br />Joe and his axis of evil welcome Billy by smuggling a handful of slimy worms into his thermos. Once discovered, Billy plays it cool, swearing that he eats worms all the time. Then he throws them at Joe's face. Ewww! To win them over, Billy reluctantly bets that he can eat 10 worms. Fried, boiled, marinated in hot sauce, squashed and spread on a peanut butter sandwich. Each meal is dubbed an exotic name like the "Radioactive Slime Delight," in which the kids finally live out their dream of microwaving a living organism.<br /><br />If you've ever met me, you'll know that I have an uncontrollably hearty laugh. I felt like a creep erupting at a toddler whining that his "dilly dick" hurts. But Fried Worms is wonderfully disgusting. Like a G-rated Farrelly brothers film, it is both vomitous and delightful.<br /><br />Writer/director Bob Dolman is also a savvy storyteller. To raise the stakes the worms must be consumed by 7 pm. In addition Billy holds a dark secret: he has an ultra-sensitive stomach.<br /><br />Dolman also has a keen sense of perspective. With such accuracy, he draws on children's insecurities and tendency to exaggerate mundane dilemmas.<br /><br />If you were to hyperbolize this movie the way kids do their quandaries, you will see that it is essentially about war. Freedom-fighter and freedom-hater use pubescent boys as pawns in proxy wars, only to learn a valuable lesson in unity. International leaders can learn a thing or two about global peacekeeping from Fried Worms.<br /><br />At the end of the film, I was comforted when two chaperoning mothers behind me, looked at each other with befuddlement and agreed, "That was a great movie." Great, now I won't have to register myself in any lawful databases
+
+example review after cleaning:
+
+['strange feeling sit alone theater occupied parent rollicking kid', 'felt like instead movie ticket given nambla membership', 'based upon thomas rockwell respected book eat fried worm start like childrens story moving new town', 'new kid fifth grader billy forrester popular start anew', 'making friend never easy especially prospect poindexter adam', 'erica foot giant', 'complicating thing joe bully', 'freckled face sleeveless shirt daunting', 'antagonizes kid death ring crackerjack ring rumored kill youre punched', 'immediately', 'death ring unleashes poison kill eight grade', 'joe axis evil welcome billy smuggling handful slimy worm thermos', 'discovered billy play cool swearing eats worm time', 'throw joes face', 'ewww', 'win billy reluctantly bet eat worm', 'fried boiled marinated hot sauce squashed spread peanut butter sandwich', 'meal dubbed exotic name like radioactive slime delight kid finally live dream microwaving living organism', 'youve ever met youll know uncontrollably hearty laugh', 'felt like creep erupting toddler whining dilly dick hurt', 'fried worm wonderfully disgusting', 'like grated farrelly brother film vomitous delightful', 'writerdirector bob dolman also savvy storyteller', 'raise stake worm must consumed', 'addition billy hold dark secret ultrasensitive stomach', 'dolman also keen sense perspective', 'accuracy draw childrens insecurity tendency exaggerate mundane dilemma', 'hyperbolize movie way kid quandary see essentially war', 'freedomfighter freedomhater use pubescent boy pawn proxy war learn valuable lesson unity', 'international leader learn thing two global peacekeeping fried worm', 'end film comforted two chaperoning mother behind looked befuddlement agreed great movie', 'great wont register lawful database']
+
+example review after encoding:
+
+[[549, 309, 704, 503, 480, 6911, 557, 16417, 130], [326, 4, 201, 1, 2592, 250, 49596, 17865], [345, 567, 1495, 13124, 4414, 143, 1727, 7157, 5197, 141, 4, 2183, 8, 615, 77, 384], [77, 130, 4489, 9358, 1274, 26954, 932, 141, 17866], [160, 109, 40, 639, 172, 6316, 41952, 1328], [9254, 1067, 1044], [18412, 26, 825, 3705], [49597, 235, 25423, 3076, 16418], [49598, 130, 206, 1072, 15603, 1072, 14205, 266, 228, 10841], [1045], [206, 1072, 13629, 4630, 266, 2205, 1242], [825, 13630, 353, 2161, 1274, 8948, 3077, 5304, 5197, 41953], [1765, 1274, 69, 482, 5851, 4175, 5197, 5], [868, 9255, 235], [23061], [796, 1274, 6602, 1875, 1727, 5197], [7157, 12624, 49599, 768, 11969, 20392, 3651, 9993, 11378, 7621], [4631, 2032, 3789, 222, 4, 9359, 11760, 2390, 130, 308, 330, 523, 41954, 465, 15604], [674, 47, 1605, 364, 31, 17362, 12180, 211], [326, 4, 3504, 19001, 9493, 6034, 18413, 1907, 1018], [7157, 5197, 1545, 1927], [4, 12625, 13893, 310, 2, 33515, 1880], [2484, 1643, 33516, 21, 9994, 8566], [1902, 4432, 5197, 121, 7092], [1360, 1274, 584, 350, 728, 49600, 2517], [33516, 21, 4986, 188, 1649], [4490, 1510, 2183, 9142, 4278, 14878, 4381, 4459], [65576, 1, 25, 130, 20393, 12, 1728, 177], [49601, 65577, 251, 23062, 200, 8949, 22069, 177, 695, 3978, 1200, 12397], [1772, 1354, 695, 26, 38, 4415, 65578, 7157, 5197], [41, 2, 23063, 38, 65579, 290, 405, 462, 65580, 3628, 19, 1], [19, 362, 6215, 37002, 13125]]
+
+dictionary size: 150850
+
+first ten examples from "dictionary":
+
+{1: 'movie', 2: 'film', 3: 'one', 4: 'like', 5: 'time', 6: 'good', 7: 'character', 8: 'story', 9: 'even', 10: 'get'}
+
+data frame size: 50000
+
+data frame before splitting between "data" and "target":
+
+                                              review  target                                              clean                                              codes
+0  For a movie that gets no respect there sure ar...       1  [movie get respect sure lot memorable quote li...  [[1, 10, 921, 153, 59, 751, 1934, 3370, 1101],...
+1  Bizarre horror movie filled with famous faces ...       1  [bizarre horror movie filled famous face stole...  [[989, 96, 1, 978, 672, 235, 2314, 11191, 7018...
+2  A solid, if unremarkable film. Matthau, as Ein...       1  [solid unremarkable film, matthau einstein won...  [[1015, 7937, 2], [3228, 6851, 288], [341, 54,...
+3  It's a strange feeling to sit alone in a theat...       1  [strange feeling sit alone theater occupied pa...  [[549, 309, 704, 503, 480, 6911, 557, 16417, 1...
+4  You probably all already know this by now, but...       1  [probably already know additional episode neve...  [[142, 360, 31, 4763, 167, 40, 2775, 1979, 496...
+
+
+data frame for "data_train":
+
+                                                   codes numerics  to_event
+46521  [[1, 3186, 41, 27, 413, 182, 306, 836, 13], [2...    [[0]]       0.0
+13908  [[16, 1158, 31, 832, 2071, 9165, 14002, 1173, ...    [[0]]       0.0
+39915  [[72, 82, 437, 67, 4], [67, 1109, 88], [31, 16...    [[0]]       0.0
+28440  [[8478, 8757, 3243, 692], [334, 5446, 259, 134...    [[0]]       0.0
+6011   [[77, 699, 454, 1057, 677, 6549, 5090, 1755, 6...    [[0]]       0.0
+
+data frame for "data_test":
+
+                                                   codes numerics  to_event
+29430  [[2, 11164, 15211, 3201, 655, 1209, 2102, 3, 4...    [[0]]       0.0
+27750  [[22, 208, 2220, 2, 121, 39, 1312, 26], [101, ...    [[0]]       0.0
+47782  [[1818], [109, 1450, 415, 92, 3879, 188, 1022,...    [[0]]       0.0
+10498  [[1434, 512, 8713], [1477, 2606, 9534, 35669, ...    [[0]]       0.0
+24747  [[61, 2628, 12187, 35867, 1768], [20816, 284, ...    [[0]]       0.0
+
+data frame for "target_train":
+
+       target
+46521       0
+13908       0
+39915       0
+28440       1
+6011        1
+
+data frame for "target_test":
+
+       target
+29430       1
+27750       1
+47782       0
+10498       0
+24747       0
