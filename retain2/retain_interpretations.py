@@ -150,8 +150,8 @@ def read_data(model_parameters, path_data, path_dictionary):
 def get_importances(alphas, betas, patient_data, model_parameters, dictionary):
     '''Construct dataframes that interpret each visit of the given patient'''
     importances = []
-    codes = patient_data[0][0]
-    for i in range(len(patient_data[0][0])):
+    codes = patient_data[0]
+    for i in range(len(patient_data[0])):
         visit_codes = codes[i]
         visit_beta = betas[i]
         visit_alpha = alphas[i][0]
@@ -239,7 +239,8 @@ def main(ARGS):
     #     pickle.dump(probability, handle)
     # with open("review_dict.pkl", "wb") as handle:
     #     pickle.dump(review_dict, handle)
-    return probability, review_dict
+    print(probability[0])
+    print(review_dict['0'])
 
 
 def parse_arguments(parser):
