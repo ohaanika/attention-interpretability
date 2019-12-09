@@ -15,6 +15,15 @@ from keras_exp.multigpu import get_available_gpus, make_parallel
 from sklearn.metrics import roc_auc_score, average_precision_score, precision_recall_curve
 
 
+def read_data(ARGS):
+    '''Read the data from provided paths and assign it into lists'''
+    data_train = pd.read_pickle(ARGS.path_data_train)['codes'].values
+    data_test = pd.read_pickle(ARGS.path_data_test)['codes'].values
+    y_train = pd.read_pickle(ARGS.path_target_train)['target'].values
+    y_test = pd.read_pickle(ARGS.path_target_test)['target'].values
+    return (data_train, y_train, data_test, y_test)
+
+
 class SequenceBuilder(Sequence):
     '''Generate batches of data'''
     def __init__(self, data, target, batch_size, ARGS, target_out=True):
@@ -27,9 +36,7 @@ class SequenceBuilder(Sequence):
         self.n_steps = ARGS.n_steps
 
     def __len__(self):
-        '''Compute number of batches.
-        Add extra batch if the data doesn't exactly divide into batches
-        '''
+        '''Compute number of batches and add extra batch if the data doesn't exactly divide into batches'''
         if len(self.codes)%self.batch_size == 0:
             return len(self.codes) // self.batch_size
         return len(self.codes) // self.batch_size+1
@@ -37,7 +44,7 @@ class SequenceBuilder(Sequence):
     def __getitem__(self, idx):
         '''Get batch of specific index'''
         def pad_data(data, length_visits, length_codes, pad_value=0):
-            '''Pad data to desired number of visiits and codes inside each visit'''
+            '''Pad data to desired number of visits and codes inside each visit'''
             zeros = np.full((len(data), length_visits, length_codes), pad_value)
             for steps, mat in zip(data, zeros):
                 if steps != [[-1]]:
@@ -86,21 +93,10 @@ class FreezePadding(Constraint):
         return w
 
 
-def read_data(ARGS):
-    '''Read the data from provided paths and assign it into lists'''
-    data_train = pd.read_pickle(ARGS.path_data_train)['codes'].values
-    data_test = pd.read_pickle(ARGS.path_data_test)['codes'].values
-    y_train = pd.read_pickle(ARGS.path_target_train)['target'].values
-    y_test = pd.read_pickle(ARGS.path_target_test)['target'].values
-
-    return (data_train, y_train, data_test, y_test)
-
-
 def model_create(ARGS):
     '''Create and compile model and assign it to provided devices'''
     def retain(ARGS):
         '''Create the model'''
-
         # Define the constant for model saving
         reshape_size = ARGS.emb_size
         if ARGS.allow_negative:
@@ -119,64 +115,52 @@ def model_create(ARGS):
             '''Reshape the context vectors to 3D vector'''
             return K.reshape(x=data, shape=(K.shape(data)[0], 1, reshape_size))
 
-        # Code Input
+        # Code input
         codes = L.Input((None, None), name='codes_input')
-        inputs_list = [codes]
+
         # Calculate embedding for each code and sum them to a visit level
         codes_embs_total = L.Embedding(ARGS.num_codes+1,
                                        ARGS.emb_size,
                                        name='embedding',
                                        embeddings_constraint=embeddings_constraint)(codes)
         codes_embs = L.Lambda(lambda x: K.sum(x, axis=2))(codes_embs_total)
-        
-        full_embs = codes_embs
 
         # Apply dropout on inputs
-        full_embs = L.Dropout(ARGS.dropout_input)(full_embs)
-
-        time_embs = full_embs
+        codes_embs = L.Dropout(ARGS.dropout_input)(codes_embs)
 
         # If training on GPU and Tensorflow use CuDNNLSTM for much faster training
         if glist:
-            alpha = L.Bidirectional(L.CuDNNLSTM(ARGS.recurrent_size, return_sequences=True),
-                                    name='alpha')
-            beta = L.Bidirectional(L.CuDNNLSTM(ARGS.recurrent_size, return_sequences=True),
-                                   name='beta')
+            alpha = L.Bidirectional(L.CuDNNLSTM(ARGS.recurrent_size, return_sequences=True), name='alpha')
+            beta = L.Bidirectional(L.CuDNNLSTM(ARGS.recurrent_size, return_sequences=True), name='beta')
         else:
-            alpha = L.Bidirectional(L.LSTM(ARGS.recurrent_size,
-                                           return_sequences=True, implementation=2),
-                                    name='alpha')
-            beta = L.Bidirectional(L.LSTM(ARGS.recurrent_size,
-                                          return_sequences=True, implementation=2),
-                                   name='beta')
+            alpha = L.Bidirectional(L.LSTM(ARGS.recurrent_size, return_sequences=True, implementation=2), name='alpha')
+            beta = L.Bidirectional(L.LSTM(ARGS.recurrent_size, return_sequences=True, implementation=2), name='beta')
 
         alpha_dense = L.Dense(1, kernel_regularizer=l2(ARGS.l2))
-        beta_dense = L.Dense(ARGS.emb_size,
-                             activation=beta_activation, kernel_regularizer=l2(ARGS.l2))
+        beta_dense = L.Dense(ARGS.emb_size, activation=beta_activation, kernel_regularizer=l2(ARGS.l2))
 
         # Compute alpha, visit attention
-        alpha_out = alpha(time_embs)
+        alpha_out = alpha(codes_embs)
         alpha_out = L.TimeDistributed(alpha_dense, name='alpha_dense_0')(alpha_out)
         alpha_out = L.Softmax(axis=1)(alpha_out)
         # Compute beta, codes attention
-        beta_out = beta(time_embs)
+        beta_out = beta(codes_embs)
         beta_out = L.TimeDistributed(beta_dense, name='beta_dense_0')(beta_out)
         # Compute context vector based on attentions and embeddings
-        c_t = L.Multiply()([alpha_out, beta_out, full_embs])
+        c_t = L.Multiply()([alpha_out, beta_out, codes_embs])
         c_t = L.Lambda(lambda x: K.sum(x, axis=1))(c_t)
         # Reshape to 3d vector for consistency between Many to Many and Many to One implementations
         contexts = L.Lambda(reshape)(c_t)
 
         # Make a prediction
         contexts = L.Dropout(ARGS.dropout_context)(contexts)
-        output_layer = L.Dense(1, activation='sigmoid', name='dOut',
-                               kernel_regularizer=l2(ARGS.l2), kernel_constraint=output_constraint)
+        output_layer = L.Dense(1, activation='sigmoid', name='dOut', kernel_regularizer=l2(ARGS.l2), 
+                               kernel_constraint=output_constraint)
 
-        # TimeDistributed is used for consistency
-        # between Many to Many and Many to One implementations
+        # TimeDistributed is used for consistency between Many to Many and Many to One implementations
         output = L.TimeDistributed(output_layer, name='time_distributed_out')(contexts)
         # Define the model with appropriate inputs
-        model = Model(inputs=inputs_list, outputs=[output])
+        model = Model(inputs=[codes], outputs=[output])
 
         return model
 
@@ -259,11 +243,15 @@ def train_model(model, data_train, y_train, data_test, y_test, ARGS):
 
 def main(ARGS):
     '''Main body of the code'''
+
     print('Reading data')
     data_train, y_train, data_test, y_test = read_data(ARGS)
 
     print('Creating model')
     model = model_create(ARGS)
+
+    print('Model summary')
+    print(model.summary())
 
     print('Training model')
     train_model(model=model, data_train=data_train, y_train=y_train,
