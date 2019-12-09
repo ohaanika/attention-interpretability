@@ -93,7 +93,7 @@ class FreezePadding(Constraint):
         return w
 
 
-def model_create(ARGS):
+def create_model(ARGS):
     '''Create and compile model and assign it to provided devices'''
     def retain(ARGS):
         '''Create the model'''
@@ -243,19 +243,14 @@ def train_model(model, data_train, y_train, data_test, y_test, ARGS):
 
 def main(ARGS):
     '''Main body of the code'''
-
     print('\n>>> Reading data')
     data_train, y_train, data_test, y_test = read_data(ARGS)
-
     print('\n>>> Creating model')
-    model = model_create(ARGS)
-
+    model = create_model(ARGS)
     print('\n>>> Noting model summary')
     print(model.summary())
-
     print('\n>>> Training model')
-    train_model(model=model, data_train=data_train, y_train=y_train,
-                data_test=data_test, y_test=y_test, ARGS=ARGS)
+    train_model(model=model, data_train=data_train, y_train=y_train, data_test=data_test, y_test=y_test, ARGS=ARGS)
 
 
 def parse_arguments(parser):
