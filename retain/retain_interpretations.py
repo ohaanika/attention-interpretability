@@ -304,16 +304,17 @@ def main(ARGS):
     data_generator = SequenceBuilder(data, model_parameters, ARGS)
     probability = []
     review_dict = {}
-    for i in range(15000):
+    # TODO: temporarily set to 10, change back to 15000
+    for i in range(10):
         probability.append(probabilities[i, 0, 0])
         patient_data = data_generator.__getitem__(i)
         proba, alphas, betas = model_with_attention.predict_on_batch(patient_data)
         visits = get_importances(alphas[0], betas[0], patient_data, model_parameters, dictionary)
         review_dict[str(i)] = visits
-    with open("probabilities.pkl", "wb") as handle:
-        pickle.dump(probability, handle)
-    with open("review_dict.pkl", "wb") as handle:
-        pickle.dump(review_dict, handle)
+    # with open("probabilities.pkl", "wb") as handle:
+    #     pickle.dump(probability, handle)
+    # with open("review_dict.pkl", "wb") as handle:
+    #     pickle.dump(review_dict, handle)
     print(probability[3])
     print(review_dict['3'])
     return probability, review_dict
