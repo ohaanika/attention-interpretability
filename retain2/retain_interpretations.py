@@ -163,8 +163,6 @@ def main(ARGS):
     data, dictionary = read_data(model_parameters, ARGS.path_data, ARGS.path_dictionary)
     data_generator = SequenceBuilder(data, model_parameters, ARGS)
     probabilities = get_predictions(model, data, model_parameters, ARGS)
-    ARGS.batch_size = 1
-    data_generator = SequenceBuilder(data, model_parameters, ARGS)
     # TODO: temporarily comment out old code, may delete later if successfully updated
     # while 1:
     #     patient_id = int(input('Input Patient Order Number: '))
@@ -190,10 +188,6 @@ def main(ARGS):
         proba, alphas, betas = model_with_attention.predict_on_batch(patient_data)
         visits = get_importances(alphas[0], betas[0], patient_data, model_parameters, dictionary)
         review_dict[str(i)] = visits
-    # with open("probabilities.pkl", "wb") as handle:
-    #     pickle.dump(probability, handle)
-    # with open("review_dict.pkl", "wb") as handle:
-    #     pickle.dump(review_dict, handle)
     print(probability[0])
     print(review_dict['0'])
 
