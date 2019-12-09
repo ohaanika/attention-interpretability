@@ -314,6 +314,8 @@ def main(ARGS):
         pickle.dump(probability, handle)
     with open("review_dict.pkl", "wb") as handle:
         pickle.dump(review_dict, handle)
+    print(probability[3])
+    print(review_dict['3'])
     return probability, review_dict
 
 
