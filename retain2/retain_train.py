@@ -244,16 +244,16 @@ def train_model(model, data_train, y_train, data_test, y_test, ARGS):
 def main(ARGS):
     '''Main body of the code'''
 
-    print('Reading data')
+    print('>>> Reading data')
     data_train, y_train, data_test, y_test = read_data(ARGS)
 
-    print('Creating model')
+    print('>>> Creating model')
     model = model_create(ARGS)
 
-    print('Model summary')
+    print('>>> Noting model summary')
     print(model.summary())
 
-    print('Training model')
+    print('>>> Training model')
     train_model(model=model, data_train=data_train, y_train=y_train,
                 data_test=data_test, y_test=y_test, ARGS=ARGS)
 
