@@ -186,9 +186,9 @@ def model_create(ARGS):
 
     # Set Tensorflow to grow GPU memory consumption instead of grabbing all of it at once
     K.clear_session()
-    config = tf.ConfigProto(allow_soft_placement=True, log_device_placement=False)
+    config = tf.compat.v1.ConfigProto(allow_soft_placement=True, log_device_placement=False)
     config.gpu_options.allow_growth = True
-    tfsess = tf.Session(config=config)
+    tfsess = tf.compat.v1.Session(config=config)
     K.set_session(tfsess)
     # If there are multiple GPUs set up a multi-gpu model
     glist = get_available_gpus()
