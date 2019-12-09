@@ -161,24 +161,20 @@ def main(ARGS):
     model_parameters = get_model_parameters(model)
     print('\n>>> Reading data')
     data, dictionary = read_data(model_parameters, ARGS.path_data, ARGS.path_dictionary)
+    print('\n>>> Predicting the probabilities')
     data_generator = SequenceBuilder(data, model_parameters, ARGS)
     probabilities = get_predictions(model, data, model_parameters, ARGS)
     # TODO: temporarily comment out old code, may delete later if successfully updated
     # while 1:
     #     patient_id = int(input('Input Patient Order Number: '))
-    #     if patient_id > len(data[0]) - 1:
-    #         print('Invalid ID, there are only {} patients'.format(len(data[0])))
-    #     elif patient_id < 0:
-    #         print('Only Positive IDs are accepted')
-    #     else:
-    #         print('Patients probability: {}'.format(probabilities[patient_id, 0, 0]))
-    #         proceed = str(input('Output predictions? (y/n): '))
-    #         if proceed == 'y':
-    #             patient_data = data_generator.__getitem__(patient_id)
-    #             proba, alphas, betas = model_with_attention.predict_on_batch(patient_data)
-    #             visits = get_importances(alphas[0], betas[0], patient_data, model_parameters, dictionary)
-    #             for visit in visits:
-    #                 print(visit)
+    #     print('Patients probability: {}'.format(probabilities[patient_id, 0, 0]))
+    #     proceed = str(input('Output predictions? (y/n): '))
+    #     if proceed == 'y':
+    #         patient_data = data_generator.__getitem__(patient_id)
+    #         proba, alphas, betas = model_with_attention.predict_on_batch(patient_data)
+    #         visits = get_importances(alphas[0], betas[0], patient_data, model_parameters, dictionary)
+    #         for visit in visits:
+    #             print(visit)
     probability = []
     review_dict = {}
     # TODO: temporarily set to 10, change back to 15000
