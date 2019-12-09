@@ -15,15 +15,6 @@ from keras_exp.multigpu import get_available_gpus, make_parallel
 from sklearn.metrics import roc_auc_score, average_precision_score, precision_recall_curve
 
 
-def read_data(ARGS):
-    '''Read the data from provided paths and assign it into lists'''
-    data_train = pd.read_pickle(ARGS.path_data_train)['codes'].values
-    data_test = pd.read_pickle(ARGS.path_data_test)['codes'].values
-    y_train = pd.read_pickle(ARGS.path_target_train)['target'].values
-    y_test = pd.read_pickle(ARGS.path_target_test)['target'].values
-    return (data_train, y_train, data_test, y_test)
-
-
 class SequenceBuilder(Sequence):
     '''Generate batches of data'''
     def __init__(self, data, target, batch_size, ARGS, target_out=True):
@@ -91,6 +82,15 @@ class FreezePadding(Constraint):
         appended = K.concatenate([other_weights, last_weight], axis=0)
         w *= appended
         return w
+
+
+def read_data(ARGS):
+    '''Read the data from provided paths and assign it into lists'''
+    data_train = pd.read_pickle(ARGS.path_data_train)['codes'].values
+    data_test = pd.read_pickle(ARGS.path_data_test)['codes'].values
+    y_train = pd.read_pickle(ARGS.path_target_train)['target'].values
+    y_test = pd.read_pickle(ARGS.path_target_test)['target'].values
+    return (data_train, y_train, data_test, y_test)
 
 
 def create_model(ARGS):
