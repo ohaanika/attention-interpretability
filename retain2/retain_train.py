@@ -314,7 +314,7 @@ def parse_arguments(parser):
     parser.add_argument('--allow_negative',  
                         action='store_true',
                         help='If argument is present the negative weights for embeddings/attentions\
-                         will be allowed (original RETAIN implementaiton)')
+                         will be allowed (original RETAIN implementation)')
     args = parser.parse_args()
     return args
 
