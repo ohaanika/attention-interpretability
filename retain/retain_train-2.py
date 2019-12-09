@@ -17,18 +17,15 @@ from sklearn.metrics import roc_auc_score, average_precision_score, precision_re
 
 
 class SequenceBuilder(Sequence):
-    '''Generate Batches of data'''
+    '''Generate batches of data'''
     def __init__(self, data, target, batch_size, ARGS, target_out=True):
-        #Receive all appropriate data
+        # Receive all appropriate data
         self.codes = data[0]
-        index = 1
-
         self.num_codes = ARGS.num_codes
         self.target = target
         self.batch_size = batch_size
         self.target_out = target_out
         self.n_steps = ARGS.n_steps
-        #self.balance = (1-(float(sum(target))/len(target)))/(float(sum(target))/len(target))
 
     def __len__(self):
         '''Compute number of batches.
@@ -46,27 +43,26 @@ class SequenceBuilder(Sequence):
             for steps, mat in zip(data, zeros):
                 if steps != [[-1]]:
                     for step, mhot in zip(steps, mat[-len(steps):]):
-                        #Populate the data into the appropriate visit
+                        # Populate the data into the appropriate visit
                         mhot[:len(step)] = step
 
             return zeros
-        #Compute reusable batch slice
+        # Compute reusable batch slice
         batch_slice = slice(idx*self.batch_size, (idx+1)*self.batch_size)
         x_codes = self.codes[batch_slice]
-        #Max number of visits and codes inside the visit for this batch
+        # Max number of visits and codes inside the visit for this batch
         pad_length_visits = min(max(map(len, x_codes)), self.n_steps)
         pad_length_codes = max(map(lambda x: max(map(len, x)), x_codes))
-        #Number of elements in a batch (useful in case of partial batches)
+        # Number of elements in a batch (useful in case of partial batches)
         length_batch = len(x_codes)
-        #Pad data
+        # Pad data
         x_codes = pad_data(x_codes, pad_length_visits, pad_length_codes, self.num_codes)
         outputs = [x_codes]
 
-        #Add target if necessary (training vs validation)
+        # Add target if necessary (training vs validation)
         if self.target_out:
             target = self.target[batch_slice].reshape(length_batch, 1, 1)
-            #sample_weights = (target*(self.balance-1)+1).reshape(length_batch, 1)
-            #In our experiments sample weights provided worse results
+            # In our experiments sample weights provided worse results
             return (outputs, target)
 
         return outputs
@@ -105,11 +101,11 @@ def read_data(ARGS):
 
 
 def model_create(ARGS):
-    '''Create and Compile model and assign it to provided devices'''
+    '''Create and compile model and assign it to provided devices'''
     def retain(ARGS):
         '''Create the model'''
 
-        #Define the constant for model saving
+        # Define the constant for model saving
         reshape_size = ARGS.emb_size
         if ARGS.allow_negative:
             embeddings_constraint = FreezePadding()
@@ -120,17 +116,17 @@ def model_create(ARGS):
             beta_activation = 'sigmoid'
             output_constraint = non_neg()
 
-        #Get available gpus , returns empty list if none
+        # Get available gpus, returns empty list if none
         glist = get_available_gpus()
 
         def reshape(data):
             '''Reshape the context vectors to 3D vector'''
             return K.reshape(x=data, shape=(K.shape(data)[0], 1, reshape_size))
 
-        #Code Input
+        # Code Input
         codes = L.Input((None, None), name='codes_input')
         inputs_list = [codes]
-        #Calculate embedding for each code and sum them to a visit level
+        # Calculate embedding for each code and sum them to a visit level
         codes_embs_total = L.Embedding(ARGS.num_codes+1,
                                        ARGS.emb_size,
                                        name='embedding',
@@ -139,12 +135,12 @@ def model_create(ARGS):
         
         full_embs = codes_embs
 
-        #Apply dropout on inputs
+        # Apply dropout on inputs
         full_embs = L.Dropout(ARGS.dropout_input)(full_embs)
 
         time_embs = full_embs
 
-        #If training on GPU and Tensorflow use CuDNNLSTM for much faster training
+        # If training on GPU and Tensorflow use CuDNNLSTM for much faster training
         if glist:
             alpha = L.Bidirectional(L.CuDNNLSTM(ARGS.recurrent_size, return_sequences=True),
                                     name='alpha')
@@ -162,39 +158,39 @@ def model_create(ARGS):
         beta_dense = L.Dense(ARGS.emb_size,
                              activation=beta_activation, kernel_regularizer=l2(ARGS.l2))
 
-        #Compute alpha, visit attention
+        # Compute alpha, visit attention
         alpha_out = alpha(time_embs)
         alpha_out = L.TimeDistributed(alpha_dense, name='alpha_dense_0')(alpha_out)
         alpha_out = L.Softmax(axis=1)(alpha_out)
-        #Compute beta, codes attention
+        # Compute beta, codes attention
         beta_out = beta(time_embs)
         beta_out = L.TimeDistributed(beta_dense, name='beta_dense_0')(beta_out)
-        #Compute context vector based on attentions and embeddings
+        # Compute context vector based on attentions and embeddings
         c_t = L.Multiply()([alpha_out, beta_out, full_embs])
         c_t = L.Lambda(lambda x: K.sum(x, axis=1))(c_t)
-        #Reshape to 3d vector for consistency between Many to Many and Many to One implementations
+        # Reshape to 3d vector for consistency between Many to Many and Many to One implementations
         contexts = L.Lambda(reshape)(c_t)
 
-        #Make a prediction
+        # Make a prediction
         contexts = L.Dropout(ARGS.dropout_context)(contexts)
         output_layer = L.Dense(1, activation='sigmoid', name='dOut',
                                kernel_regularizer=l2(ARGS.l2), kernel_constraint=output_constraint)
 
-        #TimeDistributed is used for consistency
+        # TimeDistributed is used for consistency
         # between Many to Many and Many to One implementations
         output = L.TimeDistributed(output_layer, name='time_distributed_out')(contexts)
-        #Define the model with appropriate inputs
+        # Define the model with appropriate inputs
         model = Model(inputs=inputs_list, outputs=[output])
 
         return model
 
-    #Set Tensorflow to grow GPU memory consumption instead of grabbing all of it at once
+    # Set Tensorflow to grow GPU memory consumption instead of grabbing all of it at once
     K.clear_session()
     config = tf.ConfigProto(allow_soft_placement=True, log_device_placement=False)
     config.gpu_options.allow_growth = True
     tfsess = tf.Session(config=config)
     K.set_session(tfsess)
-    #If there are multiple GPUs set up a multi-gpu model
+    # If there are multiple GPUs set up a multi-gpu model
     glist = get_available_gpus()
     if len(glist) > 1:
         with tf.device('/cpu:0'):
@@ -203,7 +199,7 @@ def model_create(ARGS):
     else:
         model_final = retain(ARGS)
 
-    #Compile the model - adamax has produced best results in our experiments
+    # Compile the model - adamax has produced best results in our experiments
     model_final.compile(optimizer='adamax', loss='binary_crossentropy', metrics=['accuracy'],
                         sample_weight_mode='temporal')
 
@@ -213,7 +209,7 @@ def model_create(ARGS):
 def create_callbacks(model, data, ARGS):
     '''Create the checkpoint and logging callbacks'''
     class LogEval(Callback):
-        '''Logging Callback'''
+        '''Logging callback'''
         def __init__(self, filepath, model, data, ARGS, interval=1):
 
             super(Callback, self).__init__()
@@ -225,9 +221,9 @@ def create_callbacks(model, data, ARGS):
                                              target_out=False)
             self.model = model
         def on_epoch_end(self, epoch, logs={}):
-            #Compute ROC-AUC and average precision the validation data every interval epochs
+            # Compute ROC-AUC and average precision the validation data every interval epochs
             if epoch % self.interval == 0:
-                #Compute predictions of the model
+                # Compute predictions of the model
                 y_pred = [x[-1] for x in
                           self.model.predict_generator(self.generator,
                                                        verbose=0,
@@ -236,7 +232,7 @@ def create_callbacks(model, data, ARGS):
                                                        max_queue_size=5)]
                 score_roc = roc_auc_score(self.y_test, y_pred)
                 score_pr = average_precision_score(self.y_test, y_pred)
-                #Create log files if it doesn't exist, otherwise write to it
+                # Create log files if it doesn't exist, otherwise write to it
                 if os.path.exists(self.filepath):
                     append_write = 'a'
                 else:
@@ -249,14 +245,14 @@ def create_callbacks(model, data, ARGS):
                       .format(epoch, score_roc, score_pr))
 
 
-    #Create callbacks
+    # Create callbacks
     checkpoint = ModelCheckpoint(filepath=ARGS.directory+'/weights.{epoch:02d}.hdf5')
     log = LogEval(ARGS.directory+'/log.txt', model, data, ARGS)
     return(checkpoint, log)
 
 
 def train_model(model, data_train, y_train, data_test, y_test, ARGS):
-    '''Train the Model with appropriate callbacks and generator'''
+    '''Train the model with appropriate callbacks and generator'''
     checkpoint, log = create_callbacks(model, (data_test, y_test), ARGS)
     train_generator = SequenceBuilder(data=data_train, target=y_train,
                                       batch_size=ARGS.batch_size, ARGS=ARGS)
@@ -267,13 +263,13 @@ def train_model(model, data_train, y_train, data_test, y_test, ARGS):
 
 def main(ARGS):
     '''Main body of the code'''
-    print('Reading Data')
+    print('Reading data')
     data_train, y_train, data_test, y_test = read_data(ARGS)
 
-    print('Creating Model')
+    print('Creating model')
     model = model_create(ARGS)
 
-    print('Training Model')
+    print('Training model')
     train_model(model=model, data_train=data_train, y_train=y_train,
                 data_test=data_test, y_test=y_test, ARGS=ARGS)
 
