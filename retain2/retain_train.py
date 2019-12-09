@@ -1,4 +1,3 @@
-'''Implementation of RETAIN Keras from Edward Choi'''
 import os
 import argparse
 import numpy as np
@@ -20,7 +19,7 @@ class SequenceBuilder(Sequence):
     '''Generate batches of data'''
     def __init__(self, data, target, batch_size, ARGS, target_out=True):
         # Receive all appropriate data
-        self.codes = data[0]
+        self.codes = data
         self.num_codes = ARGS.num_codes
         self.target = target
         self.batch_size = batch_size
@@ -45,7 +44,6 @@ class SequenceBuilder(Sequence):
                     for step, mhot in zip(steps, mat[-len(steps):]):
                         # Populate the data into the appropriate visit
                         mhot[:len(step)] = step
-
             return zeros
         # Compute reusable batch slice
         batch_slice = slice(idx*self.batch_size, (idx+1)*self.batch_size)
@@ -90,14 +88,12 @@ class FreezePadding(Constraint):
 
 def read_data(ARGS):
     '''Read the data from provided paths and assign it into lists'''
-    data_train_df = pd.read_pickle(ARGS.path_data_train)
-    data_test_df = pd.read_pickle(ARGS.path_data_test)
+    data_train = pd.read_pickle(ARGS.path_data_train)['codes'].values
+    data_test = pd.read_pickle(ARGS.path_data_test)['codes'].values
     y_train = pd.read_pickle(ARGS.path_target_train)['target'].values
     y_test = pd.read_pickle(ARGS.path_target_test)['target'].values
-    data_output_train = [data_train_df['codes'].values]
-    data_output_test = [data_test_df['codes'].values]
 
-    return (data_output_train, y_train, data_output_test, y_test)
+    return (data_train, y_train, data_test, y_test)
 
 
 def model_create(ARGS):
