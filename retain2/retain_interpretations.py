@@ -140,13 +140,10 @@ def get_importances(alphas, betas, patient_data, model_parameters, dictionary):
         #                          'to_event':time[i]},
         #                         columns=['status', 'feature', 'importance_feature',
         #                                  'importance_visit', 'to_event'])
-        df_visit = pd.DataFrame({
-                                 'feature': [dictionary[index] for index in relevant_indices],
-                                 'importance_feature':alpha_scaled[:, 0],
-                                 'importance_visit':visit_alpha
-                                 },
-                                columns=['feature', 'importance_feature',
-                                         'importance_visit'])
+        df_visit = pd.DataFrame({'feature': [dictionary[index] for index in relevant_indices],
+                                 'importance_feature': alpha_scaled[:, 0],
+                                 'importance_visit': visit_alpha},
+                                columns=['feature', 'importance_feature', 'importance_visit'])
         df_visit = df_visit[df_visit['feature'] != 'PADDING']
         df_visit.sort_values(['importance_feature'], ascending=False, inplace=True)
         importances.append(df_visit)
