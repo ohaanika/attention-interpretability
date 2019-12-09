@@ -24,9 +24,7 @@ class SequenceBuilder(Sequence):
         self.n_steps = ARGS.n_steps
 
     def __len__(self):
-        '''Compute number of batches.
-        Add extra batch if the data doesn't exactly divide into batches
-        '''
+        '''Compute number of batches and add extra batch if the data doesn't exactly divide into batches'''
         if len(self.codes)%self.batch_size == 0:
             return len(self.codes) // self.batch_size
         return len(self.codes) // self.batch_size+1
