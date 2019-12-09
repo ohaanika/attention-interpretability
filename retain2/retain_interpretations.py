@@ -99,7 +99,6 @@ class SequenceBuilder(Sequence):
         # Pad data
         x_codes = pad_data(x_codes, pad_length_visits, pad_length_codes, self.num_codes)
         outputs = [x_codes]
-
         return outputs
 
 
@@ -115,8 +114,8 @@ def read_data(model_parameters, path_data, path_dictionary):
 def get_importances(alphas, betas, patient_data, model_parameters, dictionary):
     '''Construct dataframes that interpret each visit of the given patient'''
     importances = []
-    codes = patient_data
-    for i in range(len(patient_data)):
+    codes = patient_data[0][0]
+    for i in range(len(patient_data[0][0])):
         visit_codes = codes[i]
         visit_beta = betas[i]
         visit_alpha = alphas[i][0]
