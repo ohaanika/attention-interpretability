@@ -115,38 +115,6 @@ def read_data(model_parameters, path_data, path_dictionary):
     return data, dictionary
 
 
-# TODO: temporarily comment out old code, may delete later if successfully updated
-# def get_importances(alphas, betas, patient_data, model_parameters, dictionary):
-#     '''Construct dataframes that interpret each visit of the given patient'''
-#     importances = []
-#     codes = patient_data[0][0]
-#     for i in range(len(patient_data[0][0])):
-#         visit_codes = codes[i]
-#         visit_beta = betas[i]
-#         visit_alpha = alphas[i][0]
-#         relevant_indices = np.append(visit_codes,
-#                                      range(model_parameters.num_codes+1,
-#                                            model_parameters.num_codes+1))\
-#                                           .astype(np.int32)
-#         values = np.full(fill_value='Diagnosed', shape=(len(visit_codes)))
-#         values_mask = np.array([1. if value == 'Diagnosed' else value for value in values], dtype=np.float32)
-#         beta_scaled = visit_beta * model_parameters.emb_weights[relevant_indices]
-#         output_scaled = np.dot(beta_scaled, model_parameters.output_weights)
-#         alpha_scaled = values_mask * visit_alpha * output_scaled
-#         df_visit = pd.DataFrame({'status':values,
-#                                  'feature': [dictionary[index] for index in relevant_indices],
-#                                  'importance_feature':alpha_scaled[:, 0],
-#                                  'importance_visit':visit_alpha,
-#                                  'to_event':time[i]},
-#                                 columns=['status', 'feature', 'importance_feature',
-#                                          'importance_visit', 'to_event'])
-#         df_visit = df_visit[df_visit['feature'] != 'PADDING']
-#         df_visit.sort_values(['importance_feature'], ascending=False, inplace=True)
-#         importances.append(df_visit)
-#     return importances
-
-
-# TODO: Jenny's version
 def get_importances(alphas, betas, patient_data, model_parameters, dictionary):
     '''Construct dataframes that interpret each visit of the given patient'''
     importances = []
@@ -164,6 +132,14 @@ def get_importances(alphas, betas, patient_data, model_parameters, dictionary):
         beta_scaled = visit_beta * model_parameters.emb_weights[relevant_indices]
         output_scaled = np.dot(beta_scaled, model_parameters.output_weights)
         alpha_scaled = values_mask * visit_alpha * output_scaled
+        # TODO: temporarily comment out old code, may delete later if successfully updated
+        # df_visit = pd.DataFrame({'status':values,
+        #                          'feature': [dictionary[index] for index in relevant_indices],
+        #                          'importance_feature':alpha_scaled[:, 0],
+        #                          'importance_visit':visit_alpha,
+        #                          'to_event':time[i]},
+        #                         columns=['status', 'feature', 'importance_feature',
+        #                                  'importance_visit', 'to_event'])
         df_visit = pd.DataFrame({
                                  'feature': [dictionary[index] for index in relevant_indices],
                                  'importance_feature':alpha_scaled[:, 0],
@@ -185,36 +161,6 @@ def get_predictions(model, data, model_parameters, ARGS):
     return preds
 
 
-# TODO: temporarily comment out old code, may delete later if successfully updated
-# def main(ARGS):
-#     '''Main body of the code'''
-#     print('Loading Model and Extracting Parameters')
-#     model, model_with_attention = import_model(ARGS.path_model)
-#     model_parameters = get_model_parameters(model)
-#     print('Reading Data')
-#     data, dictionary = read_data(model_parameters, ARGS.path_data, ARGS.path_dictionary)
-#     data_generator = SequenceBuilder(data, model_parameters, ARGS)
-#     probabilities = get_predictions(model, data, model_parameters, ARGS)
-#     ARGS.batch_size = 1
-#     data_generator = SequenceBuilder(data, model_parameters, ARGS)
-#     while 1:
-#         patient_id = int(input('Input Patient Order Number: '))
-#         if patient_id > len(data[0]) - 1:
-#             print('Invalid ID, there are only {} patients'.format(len(data[0])))
-#         elif patient_id < 0:
-#             print('Only Positive IDs are accepted')
-#         else:
-#             print('Patients probability: {}'.format(probabilities[patient_id, 0, 0]))
-#             proceed = str(input('Output predictions? (y/n): '))
-#             if proceed == 'y':
-#                 patient_data = data_generator.__getitem__(patient_id)
-#                 proba, alphas, betas = model_with_attention.predict_on_batch(patient_data)
-#                 visits = get_importances(alphas[0], betas[0], patient_data, model_parameters, dictionary)
-#                 for visit in visits:
-#                     print(visit)
-
-
-# TODO: Jenny's version
 def main(ARGS):
     '''Main body of the code'''
     print('\n>>> Loading model and extracting parameters')
@@ -226,6 +172,22 @@ def main(ARGS):
     probabilities = get_predictions(model, data, model_parameters, ARGS)
     ARGS.batch_size = 1
     data_generator = SequenceBuilder(data, model_parameters, ARGS)
+    # TODO: temporarily comment out old code, may delete later if successfully updated
+    # while 1:
+    #     patient_id = int(input('Input Patient Order Number: '))
+    #     if patient_id > len(data[0]) - 1:
+    #         print('Invalid ID, there are only {} patients'.format(len(data[0])))
+    #     elif patient_id < 0:
+    #         print('Only Positive IDs are accepted')
+    #     else:
+    #         print('Patients probability: {}'.format(probabilities[patient_id, 0, 0]))
+    #         proceed = str(input('Output predictions? (y/n): '))
+    #         if proceed == 'y':
+    #             patient_data = data_generator.__getitem__(patient_id)
+    #             proba, alphas, betas = model_with_attention.predict_on_batch(patient_data)
+    #             visits = get_importances(alphas[0], betas[0], patient_data, model_parameters, dictionary)
+    #             for visit in visits:
+    #                 print(visit)
     probability = []
     review_dict = {}
     # TODO: temporarily set to 10, change back to 15000
@@ -239,7 +201,8 @@ def main(ARGS):
     #     pickle.dump(probability, handle)
     # with open("review_dict.pkl", "wb") as handle:
     #     pickle.dump(review_dict, handle)
-    return probability, review_dict
+    print(probability[0])
+    print(review_dict['0'])
 
 
 def parse_arguments(parser):
