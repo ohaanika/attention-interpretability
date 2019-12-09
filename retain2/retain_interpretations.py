@@ -37,7 +37,6 @@ def get_model_parameters(model):
             self.bias = None
 
     params = ModelParameters()
-    names = [layer.name for layer in model.layers]
     params.num_codes = model.get_layer(name='embedding').input_dim-1
     params.emb_weights = model.get_layer(name='embedding').get_weights()[0]
     params.output_weights, params.bias = model.get_layer(name='time_distributed_out').get_weights()
@@ -68,15 +67,13 @@ class FreezePadding(Constraint):
 class SequenceBuilder(Sequence):
     '''Generate Batches of data'''
     def __init__(self, data, model_parameters, ARGS):
-        #Receive all appropriate data
+        # Receive all appropriate data
         self.codes = data
         self.num_codes = model_parameters.num_codes
         self.batch_size = ARGS.batch_size
 
     def __len__(self):
-        '''Compute number of batches.
-        Add extra batch if the data doesn't exactly divide into batches
-        '''
+        '''Compute number of batches and add extra batch if the data doesn't exactly divide into batches'''
         if len(self.codes)%self.batch_size == 0:
             return len(self.codes) // self.batch_size
         return len(self.codes) // self.batch_size+1
@@ -89,17 +86,17 @@ class SequenceBuilder(Sequence):
             for steps, mat in zip(data, zeros):
                 if steps != [[-1]]:
                     for step, mhot in zip(steps, mat[-len(steps):]):
-                        #Populate the data into the appropriate visit
+                        # Populate the data into the appropriate visit
                         mhot[:len(step)] = step
 
             return zeros
-        #Compute reusable batch slice
+        # Compute reusable batch slice
         batch_slice = slice(idx*self.batch_size, (idx+1)*self.batch_size)
         x_codes = self.codes[batch_slice]
-        #Max number of visits and codes inside the visit for this batch
+        # Max number of visits and codes inside the visit for this batch
         pad_length_visits = max(map(len, x_codes))
         pad_length_codes = max(map(lambda x: max(map(len, x)), x_codes))
-        #Pad data
+        # Pad data
         x_codes = pad_data(x_codes, pad_length_visits, pad_length_codes, self.num_codes)
         outputs = [x_codes]
 
@@ -118,8 +115,8 @@ def read_data(model_parameters, path_data, path_dictionary):
 def get_importances(alphas, betas, patient_data, model_parameters, dictionary):
     '''Construct dataframes that interpret each visit of the given patient'''
     importances = []
-    codes = patient_data[0]
-    for i in range(len(patient_data[0])):
+    codes = patient_data
+    for i in range(len(patient_data)):
         visit_codes = codes[i]
         visit_beta = betas[i]
         visit_alpha = alphas[i][0]
