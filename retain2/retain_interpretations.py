@@ -14,9 +14,9 @@ from keras.utils.data_utils import Sequence
 def import_model(path):
     '''Import model from given path and assign it to appropriate devices'''
     K.clear_session()
-    config = tf.ConfigProto(allow_soft_placement=True, log_device_placement=False)
+    config = tf.compat.v1.ConfigProto(allow_soft_placement=True, log_device_placement=False)
     config.gpu_options.allow_growth = True
-    tfsess = tf.Session(config=config)
+    tfsess = tf.compat.v1.Session(config=config)
     K.set_session(tfsess)
     model = load_model(path, custom_objects={'FreezePadding':FreezePadding,
                                              'FreezePadding_Non_Negative':FreezePadding_Non_Negative})
@@ -32,12 +32,9 @@ def get_model_parameters(model):
         '''Helper class to store model parametesrs in the same format as ARGS'''
         def __init__(self):
             self.num_codes = None
-            self.numeric_size = None
-            self.use_time = None
             self.emb_weights = None
             self.output_weights = None
             self.bias = None
-
 
     params = ModelParameters()
     names = [layer.name for layer in model.layers]
@@ -45,24 +42,6 @@ def get_model_parameters(model):
     params.emb_weights = model.get_layer(name='embedding').get_weights()[0]
     params.output_weights, params.bias = model.get_layer(name='time_distributed_out').get_weights()
     print('Model bias: {}'.format(params.bias))
-    if 'numeric_input' in names:
-        params.numeric_size = model.get_layer(name='numeric_input').input_shape[2]
-        #Add artificial embeddings for each numeric feature and extend the embedding weights
-        #Numeric embeddings is just 1 for 1 dimension of the embedding which corresponds to taking value as is
-        numeric_embeddings = np.zeros((params.numeric_size, params.emb_weights.shape[1]+params.numeric_size))
-        for i in range(params.numeric_size):
-            numeric_embeddings[i, params.emb_weights.shape[1]+i] = 1
-        #Extended embedding is original embedding extended to larger output size and numerics embeddings added
-        params.emb_weights = np.append(params.emb_weights,
-                                       np.zeros((params.num_codes+1, params.numeric_size)),
-                                       axis=1)
-        params.emb_weights = np.append(params.emb_weights, numeric_embeddings, axis=0)
-    else:
-        params.numeric_size = 0
-    if 'time_input' in names:
-        params.use_time = True
-    else:
-        params.use_time = False
     return params
 
 
@@ -91,18 +70,8 @@ class SequenceBuilder(Sequence):
     def __init__(self, data, model_parameters, ARGS):
         #Receive all appropriate data
         self.codes = data[0]
-        index = 1
-        if model_parameters.numeric_size:
-            self.numeric = data[index]
-            index += 1
-
-        if model_parameters.use_time:
-            self.time = data[index]
-
         self.num_codes = model_parameters.num_codes
         self.batch_size = ARGS.batch_size
-        self.numeric_size = model_parameters.numeric_size
-        self.use_time = model_parameters.use_time
 
     def __len__(self):
         '''Compute number of batches.
@@ -135,17 +104,6 @@ class SequenceBuilder(Sequence):
         #Pad data
         x_codes = pad_data(x_codes, pad_length_visits, pad_length_codes, self.num_codes)
         outputs = [x_codes]
-        #Add numeric data if necessary
-        if self.numeric_size:
-            x_numeric = self.numeric[batch_slice]
-            x_numeric = pad_data(x_numeric, pad_length_visits, self.numeric_size, -99.0)
-            outputs.append(x_numeric)
-        #Add time data if necessary
-        if self.use_time:
-            x_time = sequence.pad_sequences(self.time[batch_slice],
-                                            dtype=np.float32, maxlen=pad_length_visits,
-                                            value=+99).reshape(length_batch, pad_length_visits, 1)
-            outputs.append(x_time)
 
         return outputs
 
@@ -154,11 +112,6 @@ def read_data(model_parameters, path_data, path_dictionary):
     '''Read the data from provided paths and assign it into lists'''
     data = pd.read_pickle(path_data)
     data_output = [data['codes'].values]
-
-    if model_parameters.numeric_size:
-        data_output.append(data['numerics'].values)
-    if model_parameters.use_time:
-        data_output.append(data['to_event'].values)
 
     with open(path_dictionary, 'rb') as f:
         dictionary = pickle.load(f)
@@ -172,26 +125,15 @@ def read_data(model_parameters, path_data, path_dictionary):
 #     '''Construct dataframes that interpret each visit of the given patient'''
 #     importances = []
 #     codes = patient_data[0][0]
-#     index = 1
-#     if model_parameters.numeric_size:
-#         numerics = patient_data[index][0]
-#         index += 1
-#     if model_parameters.use_time:
-#         time = patient_data[index][0].reshape((len(codes),))
-#     else:
-#         time = np.arange(len(codes))
 #     for i in range(len(patient_data[0][0])):
 #         visit_codes = codes[i]
 #         visit_beta = betas[i]
 #         visit_alpha = alphas[i][0]
 #         relevant_indices = np.append(visit_codes,
 #                                      range(model_parameters.num_codes+1,
-#                                            model_parameters.num_codes+1+model_parameters.numeric_size))\
+#                                            model_parameters.num_codes+1))\
 #                                           .astype(np.int32)
-#         values = np.full(fill_value='Diagnosed', shape=(len(visit_codes),))
-#         if model_parameters.numeric_size:
-#             visit_numerics = numerics[i]
-#             values = np.append(values, visit_numerics)
+#         values = np.full(fill_value='Diagnosed', shape=(len(visit_codes)))
 #         values_mask = np.array([1. if value == 'Diagnosed' else value for value in values], dtype=np.float32)
 #         beta_scaled = visit_beta * model_parameters.emb_weights[relevant_indices]
 #         output_scaled = np.dot(beta_scaled, model_parameters.output_weights)
@@ -215,26 +157,15 @@ def get_importances(alphas, betas, patient_data, model_parameters, dictionary):
     '''Construct dataframes that interpret each visit of the given patient'''
     importances = []
     codes = patient_data[0][0]
-    index = 1
-    if model_parameters.numeric_size:
-        numerics = patient_data[index][0]
-        index += 1
-    if model_parameters.use_time:
-        time = patient_data[index][0].reshape((len(codes),))
-    else:
-        time = np.arange(len(codes))
     for i in range(len(patient_data[0][0])):
         visit_codes = codes[i]
         visit_beta = betas[i]
         visit_alpha = alphas[i][0]
         relevant_indices = np.append(visit_codes,
                                      range(model_parameters.num_codes+1,
-                                           model_parameters.num_codes+1+model_parameters.numeric_size))\
+                                           model_parameters.num_codes+1))\
                                           .astype(np.int32)
-        values = np.full(fill_value='Diagnosed', shape=(len(visit_codes),))
-        if model_parameters.numeric_size:
-            visit_numerics = numerics[i]
-            values = np.append(values, visit_numerics)
+        values = np.full(fill_value='Diagnosed', shape=(len(visit_codes)))
         values_mask = np.array([1. if value == 'Diagnosed' else value for value in values], dtype=np.float32)
         beta_scaled = visit_beta * model_parameters.emb_weights[relevant_indices]
         output_scaled = np.dot(beta_scaled, model_parameters.output_weights)
@@ -293,10 +224,10 @@ def get_predictions(model, data, model_parameters, ARGS):
 # TODO: Jenny's version
 def main(ARGS):
     '''Main body of the code'''
-    print('Loading Model and Extracting Parameters')
+    print('\n>>> Loading model and extracting parameters')
     model, model_with_attention = import_model(ARGS.path_model)
     model_parameters = get_model_parameters(model)
-    print('Reading Data')
+    print('\n>>> Reading data')
     data, dictionary = read_data(model_parameters, ARGS.path_data, ARGS.path_dictionary)
     data_generator = SequenceBuilder(data, model_parameters, ARGS)
     probabilities = get_predictions(model, data, model_parameters, ARGS)
@@ -304,16 +235,17 @@ def main(ARGS):
     data_generator = SequenceBuilder(data, model_parameters, ARGS)
     probability = []
     review_dict = {}
-    for i in range(15000):
+    # TODO: temporarily set to 10, change back to 15000
+    for i in range(10):
         probability.append(probabilities[i, 0, 0])
         patient_data = data_generator.__getitem__(i)
         proba, alphas, betas = model_with_attention.predict_on_batch(patient_data)
         visits = get_importances(alphas[0], betas[0], patient_data, model_parameters, dictionary)
         review_dict[str(i)] = visits
-    with open("probabilities.pkl", "wb") as handle:
-        pickle.dump(probability, handle)
-    with open("review_dict.pkl", "wb") as handle:
-        pickle.dump(review_dict, handle)
+    # with open("probabilities.pkl", "wb") as handle:
+    #     pickle.dump(probability, handle)
+    # with open("review_dict.pkl", "wb") as handle:
+    #     pickle.dump(review_dict, handle)
     return probability, review_dict
 
 
