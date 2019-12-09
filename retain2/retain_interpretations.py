@@ -69,7 +69,7 @@ class SequenceBuilder(Sequence):
     '''Generate Batches of data'''
     def __init__(self, data, model_parameters, ARGS):
         #Receive all appropriate data
-        self.codes = data[0]
+        self.codes = data
         self.num_codes = model_parameters.num_codes
         self.batch_size = ARGS.batch_size
 
@@ -99,8 +99,6 @@ class SequenceBuilder(Sequence):
         #Max number of visits and codes inside the visit for this batch
         pad_length_visits = max(map(len, x_codes))
         pad_length_codes = max(map(lambda x: max(map(len, x)), x_codes))
-        #Number of elements in a batch (useful in case of partial batches)
-        length_batch = len(x_codes)
         #Pad data
         x_codes = pad_data(x_codes, pad_length_visits, pad_length_codes, self.num_codes)
         outputs = [x_codes]
@@ -110,14 +108,11 @@ class SequenceBuilder(Sequence):
 
 def read_data(model_parameters, path_data, path_dictionary):
     '''Read the data from provided paths and assign it into lists'''
-    data = pd.read_pickle(path_data)
-    data_output = [data['codes'].values]
-
+    data = pd.read_pickle(path_data)['codes'].values
     with open(path_dictionary, 'rb') as f:
         dictionary = pickle.load(f)
-
     dictionary[model_parameters.num_codes] = 'PADDING'
-    return data_output, dictionary
+    return data, dictionary
 
 
 # TODO: temporarily comment out old code, may delete later if successfully updated
@@ -148,7 +143,6 @@ def read_data(model_parameters, path_data, path_dictionary):
 #         df_visit = df_visit[df_visit['feature'] != 'PADDING']
 #         df_visit.sort_values(['importance_feature'], ascending=False, inplace=True)
 #         importances.append(df_visit)
-
 #     return importances
 
 
@@ -180,7 +174,6 @@ def get_importances(alphas, betas, patient_data, model_parameters, dictionary):
         df_visit = df_visit[df_visit['feature'] != 'PADDING']
         df_visit.sort_values(['importance_feature'], ascending=False, inplace=True)
         importances.append(df_visit)
-
     return importances
 
 
