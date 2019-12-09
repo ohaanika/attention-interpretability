@@ -177,14 +177,17 @@ def main(ARGS):
     #             print(visit)
     probability = []
     review_dict = {}
+    # TODO: work on saving work as a dataframe
+    # for i in range(10):
+    #     print(probabilities[i, 0, 0])
     # TODO: temporarily set to 10, change back to 15000
     for i in range(10):
-        print(probabilities[i, 0, 0])
         probability.append(probabilities[i, 0, 0])
         patient_data = data_generator.__getitem__(i)
         proba, alphas, betas = model_with_attention.predict_on_batch(patient_data)
         visits = get_importances(alphas[0], betas[0], patient_data, model_parameters, dictionary)
         review_dict[str(i)] = visits
+    print(probabilities)
     # print(probability[0])
     # print(review_dict['0'])
 
