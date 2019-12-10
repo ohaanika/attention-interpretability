@@ -1,4 +1,3 @@
-'''This function will load the given data and continuosly interpet selected patients'''
 import argparse
 import pickle as pickle
 import numpy as np
@@ -29,7 +28,7 @@ def import_model(path):
 def get_model_parameters(model):
     '''Extract model arguments that were used during training'''
     class ModelParameters:
-        '''Helper class to store model parametesrs in the same format as ARGS'''
+        '''Helper class to store model parameters in the same format as ARGS'''
         def __init__(self):
             self.num_codes = None
             self.emb_weights = None
@@ -99,6 +98,11 @@ class SequenceBuilder(Sequence):
         # Pad data
         x_codes = pad_data(x_codes, pad_length_visits, pad_length_codes, self.num_codes)
         outputs = [x_codes]
+        # TODO: temporarily print to check
+        print('pad_length_visits:', pad_length_visits)
+        print('pad_length_codes:', pad_length_codes)
+        print('len(x_codes) before padding:', length_batch)
+        print('len(x_codes) after padding:', len(x_codes))
         return outputs
 
 
@@ -107,7 +111,8 @@ def read_data(model_parameters, path_data, path_dictionary):
     data = pd.read_pickle(path_data)['codes'].values
     with open(path_dictionary, 'rb') as f:
         dictionary = pickle.load(f)
-    dictionary[model_parameters.num_codes] = 'PADDING'
+    # TODO: changed index by +1 to not lose last word, but change back by -1 if necessary
+    dictionary[model_parameters.num_codes+1] = 'PADDING'
     return data, dictionary
 
 
