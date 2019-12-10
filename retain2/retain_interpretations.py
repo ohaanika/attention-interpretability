@@ -193,7 +193,12 @@ def main(ARGS):
     for i in range(10):
         probability.append(probabilities[i, 0, 0])
         patient_data = data_generator.__getitem__(i)
+        print('len(patient_data):', en(patient_data))
         print('patient ' + i + ':\n' + patient_data)
+        print('len(patient_data[0]):', len(patient_data[0]))
+        print('patient ' + i + ':\n' + patient_data[0])
+        print('len(patient_data[0][0]):', len(patient_data[0][0]))
+        print('patient ' + i + ':\n' + patient_data[0][0])
         proba, alphas, betas = model_with_attention.predict_on_batch(patient_data)
         visits = get_importances(alphas[0], betas[0], patient_data, model_parameters, dictionary)
         review_dict[str(i)] = visits
