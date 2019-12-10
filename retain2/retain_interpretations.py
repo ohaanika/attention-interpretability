@@ -95,19 +95,17 @@ class SequenceBuilder(Sequence):
         # Max number of visits and codes inside the visit for this batch
         pad_length_visits = max(map(len, x_codes))
         pad_length_codes = max(map(lambda x: max(map(len, x)), x_codes))
-        # Number of elements in a batch (useful in case of partial batches)
-        length_batch = len(x_codes)
         # Pad data
         # TODO: temporarily print to check
-        print('x_codes (before):', x_codes)
+        # print('len(x_codes) before padding:', len(x_codes))
+        # print('x_codes (before):', x_codes)
         x_codes = pad_data(x_codes, pad_length_visits, pad_length_codes, self.num_codes)
         outputs = [x_codes]
         # TODO: temporarily print to check
-        print('x_codes (after):', x_codes)
         # print('pad_length_visits:', pad_length_visits)
         # print('pad_length_codes:', pad_length_codes)
-        # print('len(x_codes) before padding:', length_batch)
         # print('len(x_codes) after padding:', len(x_codes))
+        # print('x_codes (after):', x_codes)
         return outputs
 
 
