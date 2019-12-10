@@ -194,7 +194,7 @@ def main(ARGS):
         probability.append(probabilities[i, 0, 0])
         patient_data = data_generator.__getitem__(i)
         print('\n\npatient ' + str(i) + ':\n')
-        print('len(patient_data):', en(patient_data))
+        print('len(patient_data):', len(patient_data))
         print(patient_data)
         print('len(patient_data[0]):', len(patient_data[0]))
         print(patient_data[0])
