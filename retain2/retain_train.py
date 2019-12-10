@@ -55,12 +55,6 @@ class SequenceBuilder(Sequence):
         x_codes = pad_data(x_codes, pad_length_visits, pad_length_codes, self.num_codes)
         outputs = [x_codes]
 
-        # TODO: temporarily print to check
-        print('pad_length_visits:', pad_length_visits)
-        print('pad_length_codes:', pad_length_codes)
-        print('len(x_codes) before padding:', length_batch)
-        print('len(x_codes) after padding:', len(x_codes))
-
         # Add target if necessary (training vs validation)
         if self.target_out:
             target = self.target[batch_slice].reshape(length_batch, 1, 1)
