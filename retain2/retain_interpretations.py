@@ -98,13 +98,16 @@ class SequenceBuilder(Sequence):
         # Number of elements in a batch (useful in case of partial batches)
         length_batch = len(x_codes)
         # Pad data
+        # TODO: temporarily print to check
+        print('x_codes:', x_codes)
         x_codes = pad_data(x_codes, pad_length_visits, pad_length_codes, self.num_codes)
         outputs = [x_codes]
         # TODO: temporarily print to check
-        print('pad_length_visits:', pad_length_visits)
-        print('pad_length_codes:', pad_length_codes)
-        print('len(x_codes) before padding:', length_batch)
-        print('len(x_codes) after padding:', len(x_codes))
+        print('x_codes:', x_codes)
+        # print('pad_length_visits:', pad_length_visits)
+        # print('pad_length_codes:', pad_length_codes)
+        # print('len(x_codes) before padding:', length_batch)
+        # print('len(x_codes) after padding:', len(x_codes))
         return outputs
 
 
