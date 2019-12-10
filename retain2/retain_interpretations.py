@@ -198,8 +198,6 @@ def main(ARGS):
         print(patient_data)
         print('len(patient_data[0]):', len(patient_data[0]))
         print(patient_data[0])
-        print('len(patient_data[1]):', len(patient_data[1]))
-        print(patient_data[1])
         print('len(patient_data[0][0]):', len(patient_data[0][0]))
         print(patient_data[0][0])
         print('len(patient_data[0][1]):', len(patient_data[0][1]))
