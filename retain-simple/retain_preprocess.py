@@ -138,7 +138,7 @@ def pickle_splits(splits):
 
 
 def main(ARGS):
-    print('\n>>> Reading data')
+    print('>>> Reading data')
     df = read_data()
     print('\nExample review before any preprocessing:')
     print(df['review'][3])
