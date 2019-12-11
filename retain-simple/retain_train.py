@@ -38,7 +38,7 @@ def define_model():
     # define alpha layer to compute sentence level attention
     alpha = L.Bidirectional(
         layer=L.CuDNNLSTM(
-            ARGS.recurrent_size, 
+            ARGS.alpha_rec_size, 
             return_sequences=True), 
         name='alpha')(codes_embs)
     alpha_dense = L.TimeDistributed(
@@ -52,7 +52,7 @@ def define_model():
     # define beta layer to compute word level attention
     beta = L.Bidirectional(
         layer=L.CuDNNLSTM(
-            ARGS.recurrent_size, 
+            ARGS.beta_rec_size, 
             return_sequences=True), 
         name='beta')(codes_embs)
     beta_dense = L.TimeDistributed(
