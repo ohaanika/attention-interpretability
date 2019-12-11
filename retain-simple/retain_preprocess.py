@@ -171,9 +171,8 @@ def main(ARGS):
 if __name__ == '__main__':
     for p in ['lemmatize', 'stem']:
         for s in ['remove', 'include']:
-            # initialize arguments
+            print('\n>>> Initialize arguments')
             ARGS = Arguments(dataset='IMDB', dir_data='data', dir_model='model', preprocessing=p, stopwords=s,
                             emb_size=200, alpha_rec_size=200, beta_rec_size=200, dropout_input=0.0, dropout_context=0.0, l2=0.0,
                             epochs=1, batch_size=128)
-            # run main function
             main(ARGS)
