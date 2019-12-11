@@ -152,8 +152,8 @@ def main(ARGS):
     df_splits = split_data(df)
 
     print('\n>>> Encoding data')
-    print('\nExample review before encoding:')
-    print(df_splits['data_train']['codes'][3])
+    # print('\nExample review before encoding:')
+    # print(df_splits['data_train']['codes'][3])
     df_splits, dictionary = encode_data(df_splits)
     print('\nExample review after encoding:')
     print(df_splits['data_train']['codes'][3])
@@ -171,7 +171,9 @@ def main(ARGS):
 if __name__ == '__main__':
     for p in ['lemmatize', 'stem']:
         for s in ['remove', 'include']:
+            # initialize arguments
             ARGS = Arguments(dataset='IMDB', dir_data='data', dir_model='model', preprocessing=p, stopwords=s,
                             emb_size=200, alpha_rec_size=200, beta_rec_size=200, dropout_input=0.0, dropout_context=0.0, l2=0.0,
                             epochs=1, batch_size=128)
+            # run main function
             main(ARGS)
