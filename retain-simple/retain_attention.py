@@ -166,7 +166,7 @@ def modify_weights(x_data, y_data, old_pred, old_drops, old_alphas, old_betas, m
 
 
 def main(ARGS):
-    print('>>> Reading dictionary and data as numpy arrays')
+    print('\n>>> Reading dictionary and data as numpy arrays')
     x_train, y_train, x_test, y_test, dictionary = read_data()
     y_test_binary = [pred[0][0] for pred in y_test]
     print('\nShape of "x_train": ' + str(x_train.shape))
@@ -206,15 +206,15 @@ def main(ARGS):
     # TODO: REMOVE TEMPORARY MODIFICATION when reseting to 15000 instead of 10; and implementing perm
     perm = alphas.pop("perm", None)
     y_test_binary = [pred[0][0] for pred in y_test]
-    y_test_binary = y_test_binary[:len(alphas['orig'])]
-    preds_binary = preds_binary[:len(alphas['orig'])]
-    preds = preds[:len(alphas['orig'])]
-    drops = drops[:len(alphas['orig'])]
-    betas = betas[:len(alphas['orig'])]
-    print('\nShapes of new drops, alphas, betas respectively:')
-    print(drops.shape, alphas['orig'].shape, betas.shape)
-    print('\nShapes of preds, preds_binary, y_test_binary respectively:')
-    print(len(preds), len(preds_binary), len(y_test_binary))
+    # y_test_binary = y_test_binary[:len(alphas['orig'])]
+    # preds_binary = preds_binary[:len(alphas['orig'])]
+    # preds = preds[:len(alphas['orig'])]
+    # drops = drops[:len(alphas['orig'])]
+    # betas = betas[:len(alphas['orig'])]
+    # print('\nShapes of new drops, alphas, betas respectively:')
+    # print(drops.shape, alphas['orig'].shape, betas.shape)
+    # print('\nShapes of preds, preds_binary, y_test_binary respectively:')
+    # print(len(preds), len(preds_binary), len(y_test_binary))
 
     print('\n>>> Predicting probabilities with second submodel and alpha weights')
     results = pd.DataFrame(index=alphas.keys(), columns=['preds','preds_binary','acc','JSdiv','JSdiv_binary','JSdiv_dist'])

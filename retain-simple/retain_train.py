@@ -98,7 +98,7 @@ def define_model():
 
 
 def main(ARGS):
-    print('>>> Reading data as numpy arrays')
+    print('\n>>> Reading data as numpy arrays')
     x_train, y_train, x_test, y_test = read_data()
     print('\nShape of "x_train": ' + str(x_train.shape))
     print('Shape of "y_train": ' + str(y_train.shape))
@@ -110,15 +110,15 @@ def main(ARGS):
     # https://keras.io/optimizers/
     # https://keras.io/losses/
     # adamax has produced best results in RETAIN experiments
-    print('>>> Create a model to take codes as input, targets as output')
+    print('\n>>> Create a model to take codes as input, targets as output')
     model = define_model()
 
-    print('>>> Saving model architecture as ' + ARGS.path['model_plot'])
+    print('\n>>> Saving model architecture as ' + ARGS.path['model_plot'])
     plot_model(model, to_file=ARGS.path['model_plot'])
 
     # TODO: implement validation split to pick epochs, batch_size, and more
     # https://keras.io/models/model/#fit
-    print('>>> Fitting model')
+    print('\n>>> Fitting model')
     checkpoint = ModelCheckpoint(filepath=os.path.join(ARGS.directory['model'], 'weights.{epoch:02d}.hdf5'))
     model.fit(x_train, y_train, epochs=ARGS.epochs, batch_size=ARGS.batch_size, callbacks=[checkpoint])
 
