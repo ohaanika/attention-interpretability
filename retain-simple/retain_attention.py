@@ -142,15 +142,16 @@ def get_alphas(i, ra, rb, rx, model_parameters, dictionary):
     return ra_zero_high[0], ra_zero_rand[0], ra_perm[0], ra_rand[0], ra_unif[0]
 
 
-def modify_weights(x_data, old_pred, old_drops, old_alphas, old_betas, model_parameters, dictionary):
+def modify_weights(x_data, y_data, old_pred, old_drops, old_alphas, old_betas, model_parameters, dictionary):
     alphas_type = ['orig','zero_high','zero_rand','perm','rand','unif']
     alphas_dict = {a: [] for a in alphas_type}
     # for i in range(7):
     for i in range(len(x_data)):
         rx = x_data[i]
+        ry = y_data[i]
+        rp = old_pred[i]
         ra = old_alphas[i]
         rb = old_betas[i]
-        rp = old_pred[i]  
         ra_zero_high, ra_zero_rand, ra_perm, ra_rand, ra_unif = get_alphas(i, ra, rb, rx, model_parameters, dictionary)
         alphas_dict['orig'].append(ra)
         alphas_dict['zero_high'].append(ra_zero_high)
@@ -197,7 +198,7 @@ def main(ARGS):
     print(drops.shape, alphas.shape, betas.shape)
 
     print('\n>>> Modifying alpha attention weights') 
-    alphas = modify_weights(x_test, preds, drops, alphas, betas, model_parameters, dictionary)
+    alphas = modify_weights(x_test, y_test, preds, drops, alphas, betas, model_parameters, dictionary)
     print('\nShapes of original and modified alphas (orig, zero, perm, rand, unif):')
     print(alphas['orig'].shape, alphas['zero_high'].shape, alphas['zero_rand'].shape,\
           alphas['perm'].shape, alphas['rand'].shape, alphas['unif'].shape)
