@@ -1,6 +1,8 @@
 import os 
 import re
+import copy
 import math
+from random import randrange
 import pickle as pickle
 import numpy as np
 import pandas as pd
@@ -23,6 +25,10 @@ from keras.regularizers import l2
 from keras.constraints import Constraint
 from keras.callbacks import ModelCheckpoint, Callback
 from keras.utils import plot_model
+from sklearn.metrics import accuracy_score
+from scipy.spatial.distance import jensenshannon as JS
+from scipy.stats import entropy
+from numpy.linalg import norm
 
 
 class Arguments():
@@ -84,7 +90,7 @@ class FreezePadding(Constraint):
 
 # initialize arguments (example)
 ARGS = Arguments(dataset='IMDB', dir_data='data', dir_model='model', 
-                preprocessing='lemmatize', stopwords='remove',
+                preprocessing='lemmatize', stopwords='include',
                 num_codes=100000, num_sentences=50, num_words=50,
                 emb_size=200, alpha_rec_size=200, beta_rec_size=200, 
                 dropout_input=0.0, dropout_context=0.0, l2=0.0,
