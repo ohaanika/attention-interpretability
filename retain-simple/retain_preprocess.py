@@ -102,8 +102,8 @@ def pad_data(splits):
     list_num_words = sorted([len(sentence) for review in data_both for sentence in review], reverse=True)
     max_num_words = max(list_num_words)
     print('\nMaximum number of words in a sentence: ' + str(max_num_words))
-    print('Length of 10 longest sentences: ' + str(list_num_words)[:10]))
-    print('Length of 10 shortest sentences: ' + str(list_num_words)[-10:]))   
+    print('Length of 10 longest sentences: ' + str(list_num_words[:10]))
+    print('Length of 10 shortest sentences: ' + str(list_num_words[-10:]))   
     print('Set number of words in a sentence after which the data will be truncated: ' + str(ARGS.num_words))
     # note desired maximum number of sentences in a review / words in a sentence
     print('\nSet number of sentences in a review after which the data will be truncated: ' + str(ARGS.num_sentences))    
@@ -173,13 +173,22 @@ def main(ARGS):
 
 
 if __name__ == '__main__':
-    for p in ['lemmatize', 'stem']:
-        for s in ['remove', 'include']:
-            print('\n>>> Initialize arguments')
-            ARGS = Arguments(dataset='IMDB', dir_data='data', dir_model='model', 
-                            preprocessing=p, stopwords=s,
-                            num_codes=100000, num_sentences=50, num_words=50,
-                            emb_size=200, alpha_rec_size=200, beta_rec_size=200, 
-                            dropout_input=0.0, dropout_context=0.0, l2=0.0,
-                            epochs=1, batch_size=128)
-            main(ARGS)
+    print('\n>>> Initialize arguments')
+    ARGS = Arguments(dataset='IMDB', dir_data='data', dir_model='model', 
+                    preprocessing='lemmatize', stopwords='remove',
+                    num_codes=100000, num_sentences=50, num_words=50,
+                    emb_size=200, alpha_rec_size=200, beta_rec_size=200, 
+                    dropout_input=0.0, dropout_context=0.0, l2=0.0,
+                    epochs=1, batch_size=128)
+    main(ARGS)
+    # TODO: Save for all preprocessing options
+    # for p in ['lemmatize', 'stem']:
+    #     for s in ['remove', 'include']:
+    #         print('\n>>> Initialize arguments')
+    #         ARGS = Arguments(dataset='IMDB', dir_data='data', dir_model='model', 
+    #                         preprocessing=p, stopwords=s,
+    #                         num_codes=100000, num_sentences=50, num_words=50,
+    #                         emb_size=200, alpha_rec_size=200, beta_rec_size=200, 
+    #                         dropout_input=0.0, dropout_context=0.0, l2=0.0,
+    #                         epochs=1, batch_size=128)
+    #         main(ARGS)

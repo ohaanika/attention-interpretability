@@ -116,19 +116,19 @@ def main(ARGS):
     print('>>> Saving model architecture as ' + ARGS.path['model_plot'])
     plot_model(model, to_file=ARGS.path['model_plot'])
 
-    # TODO: implement validation split to pick epochs, batch_size, and more!
+    # TODO: implement validation split to pick epochs, batch_size, and more
     # https://keras.io/models/model/#fit
     print('>>> Fitting model')
     checkpoint = ModelCheckpoint(filepath=os.path.join(ARGS.directory['model'], 'weights.{epoch:02d}.hdf5'))
     model.fit(x_train, y_train, epochs=ARGS.epochs, batch_size=ARGS.batch_size, callbacks=[checkpoint])
 
-    # compute loss and accuracy for train set
-    result = model.evaluate(x_train, y_train)
-    print(result)
+    # # compute loss and accuracy for train set
+    # result = model.evaluate(x_train, y_train)
+    # print(result)
 
-    # compute loss and accuracy for test set
-    result = model.evaluate(x_test, y_test)
-    print(result)
+    # # compute loss and accuracy for test set
+    # result = model.evaluate(x_test, y_test)
+    # print(result)
 
 
 if __name__ == '__main__':
