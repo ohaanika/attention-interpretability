@@ -26,9 +26,8 @@ from keras.utils import plot_model
 
 
 class Arguments():
-    def __init__(self, dataset, dir_data, dir_model, preprocessing, stopwords,
-                 emb_size, alpha_rec_size, beta_rec_size, dropout_input, dropout_context, l2,
-                 epochs, batch_size):
+    def __init__(self, dataset, dir_data, dir_model, preprocessing, stopwords, num_codes, num_sentences, num_words,
+                emb_size, alpha_rec_size, beta_rec_size, dropout_input, dropout_context, l2, epochs, batch_size):
         # directories
         self.directory = {
             'data': os.path.join(dir_data, preprocessing + '_' + stopwords),
@@ -42,7 +41,7 @@ class Arguments():
             'target_train': os.path.join(dir_data, dataset, preprocessing + '_' + stopwords + '_stopwords', 'target_train.pkl'),
             'target_test': os.path.join(dir_data, dataset, preprocessing + '_' + stopwords + '_stopwords', 'target_test.pkl'),
             'dictionary': os.path.join(dir_data, dataset, preprocessing + '_' + stopwords + '_stopwords', 'dictionary.pkl'),
-            'model': os.path.join(dir_model, 'weights.01.hdf5'),
+            'model': os.path.join(dir_model, 'weights.{:02d}.hdf5'.format(epochs)),
             'model_plot': os.path.join(dir_model, 'model.png'),
         }
         # preprocessing methods
@@ -51,12 +50,11 @@ class Arguments():
         # vocabulary ids
         self.pad_id = 0
         self.oov_id = 1
-        # number of words in vocabulary i.e. self.max_features? self.num_codes?
-        self.num_codes = 150850
-        self.max_features = 150850
-        # maximum number of sentences/words after which the data is truncated i.e. self.n_steps?
-        self.num_sentences = 50
-        self.num_words = 50
+        # number of words in vocabulary
+        self.num_codes = num_codes
+        # maximum number of sentences/words after which the data is truncated
+        self.num_sentences = num_sentences
+        self.num_words = num_words
         # size of embedding layer # HYPERPARAMETER
         self.emb_size = emb_size 
         # size of recurrent layers # HYPERPARAMETER
@@ -84,12 +82,15 @@ class FreezePadding(Constraint):
         return w
 
 
-# initialize arguments
-ARGS = Arguments(dataset='IMDB', dir_data='data', dir_model='model', preprocessing='lemmatize', stopwords='remove',
-                 emb_size=200, alpha_rec_size=200, beta_rec_size=200, dropout_input=0.0, dropout_context=0.0, l2=0.0,
-                 epochs=1, batch_size=128)
+# initialize arguments (example)
+ARGS = Arguments(dataset='IMDB', dir_data='data', dir_model='model', 
+                preprocessing='lemmatize', stopwords='remove',
+                num_codes=100000, num_sentences=50, num_words=50,
+                emb_size=200, alpha_rec_size=200, beta_rec_size=200, 
+                dropout_input=0.0, dropout_context=0.0, l2=0.0,
+                epochs=1, batch_size=128)
 
 
-# set random seed
-# tf.random.set_random_seed(7)
-# np.random.seed(7)
+# set random seed (example)
+tf.random.set_random_seed(7)
+np.random.seed(7)
