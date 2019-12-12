@@ -12,7 +12,7 @@ def read_data():
     x_test = convert_input(pd.read_pickle(ARGS.path['data_test'])['codes'].tolist())
     y_train = convert_output(pd.read_pickle(ARGS.path['target_train'])['target'].tolist())
     y_test = convert_output(pd.read_pickle(ARGS.path['target_test'])['target'].tolist())
-    x_train, x_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.15, random_state=7)
+    x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size=0.15, random_state=7)
     return x_train, y_train, x_val, y_val, x_test, y_test
 
 
