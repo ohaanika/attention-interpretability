@@ -27,14 +27,7 @@ def import_model(path):
     K.set_session(tfsess)
     # import model from given path
     model = load_model(path, custom_objects={'FreezePadding': FreezePadding})
-    return model, model_with_attention
-
-
-def partition_model(model):
-    model_with_attention = Model(model.inputs, model.outputs +\
-                                              [model.get_layer(name='dropout_1').output,\
-                                               model.get_layer(name='alpha_softmax').output,\
-                                               model.get_layer(name='beta_dense').output])
+    return model
 
 
 def get_model_parameters(model):
@@ -54,6 +47,39 @@ def get_model_parameters(model):
     return params
 
 
+def partition_model(model):
+    # define first submodel to retrieve weights from attention layers of original model
+    submodel_1 = Model(model.inputs, [model.get_layer(name='dropout_1').output,\
+                                    model.get_layer(name='alpha_softmax').output,\
+                                    model.get_layer(name='beta_dense').output])
+    # take dropout_1, alpha_softmax, beta_dense from original model as inputs for second submodel 
+    new_inputs = []
+    for layer_name in ['dropout_1', 'alpha_softmax', 'beta_dense']:
+        new_inputs.append(L.Input(
+            shape=model.get_layer(layer_name).output_shape[1:],
+            name=layer_name))
+    # stack sequential layers until output from original model
+    output = new_inputs
+    for layer_name in ['multiply', 'lambda_2', 'lambda_3', 'dropout_2', 'time_distributed']:
+        layer = model.get_layer(layer_name)
+        output = layer(output)
+    new_outputs = [output]
+    # define the second submodel with appropriate inputs and outputs
+    submodel_2 = Model(inputs=new_inputs, outputs=new_outputs)
+    # compile second submodel
+    submodel_2.compile(
+        optimizer='adamax',
+        loss='binary_crossentropy',
+        metrics=['accuracy'],
+        sample_weight_mode='temporal')
+    # visually inspect architecture of second submodel
+    print()
+    print(submodel_1.summary())
+    print()
+    print(submodel_2.summary())
+    return submodel_1, submodel_2
+
+
 def main(ARGS):
     print('>>> Reading dictionary and data as numpy arrays')
     x_train, y_train, x_test, y_test, dictionary = read_data()
@@ -63,10 +89,36 @@ def main(ARGS):
     print('Shape of "y_test": ' + str(y_test.shape))
 
     print('\n>>> Loading original model')
-    model, model_with_attention = import_model(ARGS.path['model'])
+    model = import_model(ARGS.path['model'])
 
     print('\n>>> Extracting parameters of original')
     model_parameters = get_model_parameters(model)
+
+    print('>>> Partition model at the attention layer (softmax_1, beta_dense_0, dropout_1)')
+    submodel_1, submodel_2 = partition_model(model)
+
+    print('>>> Predicting probabilities with original model')
+    y_pred = model.predict(x_test)
+    y_pred = [pred[0][0] for pred in y_pred]
+    y_pred_binary = [int(round(pred)) for pred in y_pred]
+    print('\nPredictions (float):')
+    print(y_pred)
+    print('\nPredictions (int):')
+    print(y_pred_binary)
+
+    print('\n>>> Gather attention weights from original model to feed as input for second submodel')
+    drops, alphas, betas = submodel_1.predict(x_test)
+    print('\nShapes of y_pred, drops, alphas, betas respectively:')
+    print(drops.shape, alphas.shape, betas.shape)
+
+    print('\n>>> Predicting probabilities with second submodel (without modifying attention weights)')
+    y_pred = submodel_2.predict([drops, alphas, betas])
+    y_pred = [pred[0][0] for pred in y_pred]
+    y_pred_binary = [int(round(pred)) for pred in y_pred]
+    print('\nPredictions (float):')
+    print(y_pred)
+    print('\nPredictions (int):')
+    print(y_pred_binary)
 
 
 if __name__ == '__main__':
