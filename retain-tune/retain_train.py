@@ -12,7 +12,8 @@ def read_data():
     x_test = convert_input(pd.read_pickle(ARGS.path['data_test'])['codes'].tolist())
     y_train = convert_output(pd.read_pickle(ARGS.path['target_train'])['target'].tolist())
     y_test = convert_output(pd.read_pickle(ARGS.path['target_test'])['target'].tolist())
-    return x_train, y_train, x_test, y_test
+    x_train, x_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.15, random_state=7)
+    return x_train, y_train, x_val, y_val, x_test, y_test
 
 
 def define_model():
@@ -99,7 +100,7 @@ def define_model():
 
 def main(ARGS):
     print('>>> Reading data as numpy arrays')
-    x_train, y_train, x_test, y_test = read_data()
+    x_train, y_train, x_val, y_val, x_test, y_test = read_data()
     print('\nShape of "x_train": ' + str(x_train.shape))
     print('Shape of "y_train": ' + str(y_train.shape))
     print('Shape of "x_test": ' + str(x_test.shape))
@@ -124,10 +125,17 @@ def main(ARGS):
 
     # # compute loss and accuracy for train set
     result = model.evaluate(x_train, y_train)
+    print('loss and accuracy for train set')
     print(result)
 
+    # computer loss and accuracy for valid set
+    result = model.evaluate(x_val, y_val)
+    print('loss and accuracy for valid set')
+    print(result)
+    
     # # compute loss and accuracy for test set
     result = model.evaluate(x_test, y_test)
+    print('loss and accuracy for test set')
     print(result)
 
 
