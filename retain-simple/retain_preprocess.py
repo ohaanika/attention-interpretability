@@ -105,9 +105,6 @@ def pad_data(splits):
     print('Length of 10 longest sentences: ' + str(list_num_words[:10]))
     print('Length of 10 shortest sentences: ' + str(list_num_words[-10:]))   
     print('Set number of words in a sentence after which the data will be truncated: ' + str(ARGS.num_words))
-    # note desired maximum number of sentences in a review / words in a sentence
-    print('\nSet number of sentences in a review after which the data will be truncated: ' + str(ARGS.num_sentences))    
-    print('Set number of words in a sentence after which the data will be truncated: ' + str(ARGS.num_words))
     # pad reviews to meet desired maximum number of sentences in a review / words in a sentence
     for split in ['data_train', 'data_test']:
         data = splits[split]['codes']
