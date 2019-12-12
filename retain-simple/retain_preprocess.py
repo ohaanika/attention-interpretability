@@ -93,14 +93,18 @@ def pad_data(splits):
     # initialize data (train and test combined) as a list
     data_both = splits['data_train']['codes'].tolist() + splits['data_test']['codes'].tolist()
     # note maximum number of sentences in a review / words in a sentence
-    list_num_sentences = [len(review) for review in data_both]
+    list_num_sentences = sorted([len(review) for review in data_both], reverse=True)
     max_num_sentences = max(list_num_sentences)
     print('\nMaximum number of sentences in a review: ' + str(max_num_sentences))
-    print('Length of 10 longest reviews: ' + str(sorted(list_num_sentences, reverse=True)[:10]))
-    list_num_words = [len(sentence) for review in data_both for sentence in review]
+    print('Length of 10 longest reviews: ' + str(list_num_sentences[:10]))
+    print('Length of 10 shortest reviews: ' + str(list_num_sentences[-10:]))
+    print('Set number of sentences in a review after which the data will be truncated: ' + str(ARGS.num_sentences)) 
+    list_num_words = sorted([len(sentence) for review in data_both for sentence in review], reverse=True)
     max_num_words = max(list_num_words)
     print('\nMaximum number of words in a sentence: ' + str(max_num_words))
-    print('Length of 10 longest sentences: ' + str(sorted(list_num_words, reverse=True)[:10]))
+    print('Length of 10 longest sentences: ' + str(list_num_words)[:10]))
+    print('Length of 10 shortest sentences: ' + str(list_num_words)[-10:]))   
+    print('Set number of words in a sentence after which the data will be truncated: ' + str(ARGS.num_words))
     # note desired maximum number of sentences in a review / words in a sentence
     print('\nSet number of sentences in a review after which the data will be truncated: ' + str(ARGS.num_sentences))    
     print('Set number of words in a sentence after which the data will be truncated: ' + str(ARGS.num_words))
