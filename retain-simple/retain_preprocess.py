@@ -67,8 +67,8 @@ def split_data(df):
 
 
 def encode_data(splits):
-    # initialize tokenizer
-    tokenizer = Tokenizer(oov_token='<OOV>')
+    # initialize tokenizer with vocabulary length specified
+    tokenizer = Tokenizer(num_words=ARGS.num_codes, oov_token='<OOV>')
     # initialize data
     data_train = splits['data_train']['codes']
     data_test = splits['data_test']['codes']

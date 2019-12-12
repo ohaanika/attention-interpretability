@@ -50,7 +50,7 @@ class Arguments():
         # vocabulary ids
         self.pad_id = 0
         self.oov_id = 1
-        # number of words in vocabulary
+        # maximum number of words in vocabulary
         self.num_codes = num_codes
         # maximum number of sentences/words after which the data is truncated
         self.num_sentences = num_sentences
