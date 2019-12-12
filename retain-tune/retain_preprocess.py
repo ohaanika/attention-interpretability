@@ -170,7 +170,7 @@ def main(ARGS):
 
 
 if __name__ == '__main__':
-    print('\n>>> Initialize arguments')
+    # print('\n>>> Initialize arguments')
     # ARGS = Arguments(dataset='IMDB', dir_data='data', dir_model='model', 
     #                 preprocessing='lemmatize', stopwords='remove',
     #                 num_codes=100000, num_sentences=50, num_words=50,
