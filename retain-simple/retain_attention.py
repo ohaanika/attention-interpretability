@@ -145,7 +145,8 @@ def get_alphas(i, ra, rb, rx, model_parameters, dictionary):
 def modify_weights(x_data, old_pred, old_drops, old_alphas, old_betas, model_parameters, dictionary):
     alphas_type = ['orig','zero_high','zero_rand','perm','rand','unif']
     alphas_dict = {a: [] for a in alphas_type}
-    for i in range(7):
+    # for i in range(7):
+    for i in range(len(x_data)):
         rx = x_data[i]
         ra = old_alphas[i]
         rb = old_betas[i]
@@ -301,7 +302,7 @@ def main(ARGS):
 
     print('\nFilled dataframe of results:')
     results.to_csv(index=True, path_or_buf='results.csv')
-    results
+    print(results)
 
 
 if __name__ == '__main__':
