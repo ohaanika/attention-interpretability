@@ -169,7 +169,7 @@ def main(ARGS):
     pickle_splits(df_splits)
 
 
-if __name__ == '__main__':
+# if __name__ == '__main__':
     # print('\n>>> Initialize arguments')
     # ARGS = Arguments(dataset='IMDB', dir_data='data', dir_model='model', 
     #                 preprocessing='lemmatize', stopwords='remove',
