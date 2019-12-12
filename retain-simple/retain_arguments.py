@@ -92,5 +92,5 @@ ARGS = Arguments(dataset='IMDB', dir_data='data', dir_model='model',
 
 
 # set random seed (example)
-tf.random.set_random_seed(7)
-np.random.seed(7)
+# tf.random.set_random_seed(7)
+# np.random.seed(7)
