@@ -120,7 +120,7 @@ def main(ARGS):
     # https://keras.io/models/model/#fit
     print('>>> Fitting model')
     checkpoint = ModelCheckpoint(filepath=os.path.join(ARGS.directory['model'], 'weights.{epoch:02d}.hdf5'))
-    history = model.fit(x_train, y_train, epochs=ARGS.epochs, batch_size=ARGS.batch_size, callbacks=[checkpoint])
+    model.fit(x_train, y_train, epochs=ARGS.epochs, batch_size=ARGS.batch_size, callbacks=[checkpoint])
 
     # compute loss and accuracy for train set
     result = model.evaluate(x_train, y_train)
