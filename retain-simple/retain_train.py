@@ -69,7 +69,7 @@ def define_model():
         name='lambda_2')(c_t)
     # reshape context vectors to 3d vector for consistency between Many to Many and Many to One implementations
     contexts = L.Lambda(
-        function=lambda x: K.reshape(x, shape=(K.shape(x)[0], 1, 250)), # TODO: ARGS.emb_size = 200
+        function=lambda x: K.reshape(x, shape=(K.shape(x)[0], 1, 200)), # TODO: ARGS.emb_size = 200
         name='lambda_3')(c_t)
     # define dropout layer to make a prediction
     contexts = L.Dropout(
