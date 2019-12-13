@@ -134,7 +134,7 @@ def main(ARGS):
 
 
 if __name__ == '__main__':
-    print('\n>>> Initialize arguments')
+    print('\n>>> Initializing arguments')
     print()
     print(ARGS.__dict__)
     main(ARGS)
