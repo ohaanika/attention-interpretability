@@ -141,4 +141,6 @@ if __name__ == '__main__':
                     emb_size=250, alpha_rec_size=250, beta_rec_size=250, 
                     dropout_input=0.6, dropout_context=0.6, l2=0.6,
                     epochs=3, batch_size=128)
+    print()
+    print(ARGS.__dict__)
     main(ARGS)
