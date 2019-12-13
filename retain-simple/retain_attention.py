@@ -145,6 +145,7 @@ def get_alphas(i, ra, rb, rx, model_parameters, dictionary):
 def modify_weights(x_data, y_data, old_pred, old_drops, old_alphas, old_betas, model_parameters, dictionary):
     alphas_type = ['orig','zero_high','zero_rand','perm','rand','unif']
     alphas_dict = {a: [] for a in alphas_type}
+    alphas_dict['orig'] = old_alphas
     # for i in range(7):
     for i in range(len(x_data)):
         rx = x_data[i]
@@ -153,7 +154,7 @@ def modify_weights(x_data, y_data, old_pred, old_drops, old_alphas, old_betas, m
         ra = old_alphas[i]
         rb = old_betas[i]
         ra_zero_high, ra_zero_rand, ra_perm, ra_rand, ra_unif = get_alphas(i, ra, rb, rx, model_parameters, dictionary)
-        alphas_dict['orig'].append(ra)
+        # alphas_dict['orig'].append(ra)
         alphas_dict['zero_high'].append(ra_zero_high)
         alphas_dict['zero_rand'].append(ra_zero_rand)
         alphas_dict['perm'].append(ra_perm)
