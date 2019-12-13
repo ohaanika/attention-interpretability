@@ -205,7 +205,7 @@ def main(ARGS):
           new_alphas['perm'].shape, new_alphas['rand'].shape, new_alphas['unif'].shape)
 
     # TODO: REMOVE TEMPORARY MODIFICATION when reseting to 15000 instead of 10; and implementing perm
-    perm = alphas.pop("perm", None)
+    perm = new_alphas.pop("perm", None)
     y_test_binary = [pred[0][0] for pred in y_test]
     # y_test_binary = y_test_binary[:len(new_alphas['orig'])]
     # preds_binary = preds_binary[:len(new_alphas['orig'])]
