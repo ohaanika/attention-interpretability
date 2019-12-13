@@ -307,6 +307,7 @@ def main(ARGS):
     print(results)
 
     print(alphas)
+    print(new_alphas['orig'])
 
 
 if __name__ == '__main__':
