@@ -190,13 +190,22 @@ def main(ARGS):
     preds_binary = [int(round(pred)) for pred in preds]
     print('\nPredictions (float):')
     print(preds)
-    print('\nPredictions (int):')
+    print('Predictions (int):')
     print(preds_binary)
 
     print('\n>>> Gather attention weights from original model to feed as input for second submodel')
     drops, alphas, betas = submodel_1.predict(x_test)
     print('\nShapes of original drops, alphas, betas respectively:')
     print(drops.shape, alphas.shape, betas.shape)
+
+    print('\n>>> Predicting probabilities with second submodel')
+    preds = model.predict([drops, alphas, betas])
+    preds = [pred[0][0] for pred in preds]
+    preds_binary = [int(round(pred)) for pred in preds]
+    print('\nPredictions (float):')
+    print(preds)
+    print('Predictions (int):')
+    print(preds_binary)
 
     print('\n>>> Modifying alpha attention weights') 
     new_alphas = modify_weights(x_test, y_test, preds, drops, alphas, betas, model_parameters, dictionary)
