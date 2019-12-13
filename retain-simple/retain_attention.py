@@ -94,7 +94,7 @@ def get_alphas(i, ra, rb, rx, model_parameters, dictionary):
         alpha_scaled = values_mask * sent_alpha * output_scaled
         
     # zero out highest attended sentence and hence all its words
-    flat_output_scaled = [v for arr in ra for v in arr]
+    flat_output_scaled = [a for sa in ra for a in sa]
     max_index = np.where(flat_output_scaled == np.amax(flat_output_scaled))[0][0]
     ra_zero_high = copy.deepcopy(ra)
     ra_zero_high[max_index] = [0]
@@ -198,34 +198,34 @@ def main(ARGS):
     print(drops.shape, alphas.shape, betas.shape)
 
     print('\n>>> Modifying alpha attention weights') 
-    alphas = modify_weights(x_test, y_test, preds, drops, alphas, betas, model_parameters, dictionary)
+    new_alphas = modify_weights(x_test, y_test, preds, drops, alphas, betas, model_parameters, dictionary)
     print('\nShapes of original and modified alphas (orig, zero, perm, rand, unif):')
-    print(alphas['orig'].shape, alphas['zero_high'].shape, alphas['zero_rand'].shape,\
-          alphas['perm'].shape, alphas['rand'].shape, alphas['unif'].shape)
+    print(new_alphas['orig'].shape, new_alphas['zero_high'].shape, new_alphas['zero_rand'].shape,\
+          new_alphas['perm'].shape, new_alphas['rand'].shape, new_alphas['unif'].shape)
 
     # TODO: REMOVE TEMPORARY MODIFICATION when reseting to 15000 instead of 10; and implementing perm
     perm = alphas.pop("perm", None)
     y_test_binary = [pred[0][0] for pred in y_test]
-    # y_test_binary = y_test_binary[:len(alphas['orig'])]
-    # preds_binary = preds_binary[:len(alphas['orig'])]
-    # preds = preds[:len(alphas['orig'])]
-    # drops = drops[:len(alphas['orig'])]
-    # betas = betas[:len(alphas['orig'])]
+    # y_test_binary = y_test_binary[:len(new_alphas['orig'])]
+    # preds_binary = preds_binary[:len(new_alphas['orig'])]
+    # preds = preds[:len(new_alphas['orig'])]
+    # drops = drops[:len(new_alphas['orig'])]
+    # betas = betas[:len(new_alphas['orig'])]
     # print('\nShapes of new drops, alphas, betas respectively:')
-    # print(drops.shape, alphas['orig'].shape, betas.shape)
+    # print(drops.shape, new_alphas['orig'].shape, betas.shape)
     # print('\nShapes of preds, preds_binary, y_test_binary respectively:')
     # print(len(preds), len(preds_binary), len(y_test_binary))
 
     print('\n>>> Predicting probabilities with second submodel and alpha weights')
-    results = pd.DataFrame(index=alphas.keys(), columns=['preds','preds_binary','acc','JSdiv','JSdiv_binary','JSdiv_dist'])
+    results = pd.DataFrame(index=new_alphas.keys(), columns=['preds','preds_binary','acc','JSdiv','JSdiv_binary','JSdiv_dist'])
     print('\nCurrently empty dataframe to store results:')
     print(results)
 
-    for a in alphas.keys():
+    for a in new_alphas.keys():
         print('\nAlpha weights: ' + a)
         
         # note predictions
-        new_preds = submodel_2.predict([drops, alphas[a], betas])
+        new_preds = submodel_2.predict([drops, new_alphas[a], betas])
         new_preds = [pred[0][0] for pred in new_preds]
         results.at[a,'preds'] = new_preds
         print('\nPredictions (float):')
@@ -273,11 +273,11 @@ def main(ARGS):
 
     # note decision flips specific to i* and r*
     print('\n>>> Noting decisions flips for i* and r*')
-    i_preds = submodel_2.predict([drops, alphas['zero_high'], betas])
+    i_preds = submodel_2.predict([drops, new_alphas['zero_high'], betas])
     i_preds = [pred[0][0] for pred in i_preds]
     i_preds_binary = [int(round(pred)) for pred in i_preds]
     i_flips = [abs(preds_binary[i] - i_preds_binary[i]) for i in range(len(i_preds_binary))]
-    r_preds = submodel_2.predict([drops, alphas['zero_rand'], betas])
+    r_preds = submodel_2.predict([drops, new_alphas['zero_rand'], betas])
     r_preds = [pred[0][0] for pred in r_preds]
     r_preds_binary = [int(round(pred)) for pred in r_preds]
     r_flips = [abs(preds_binary[i] - r_preds_binary[i]) for i in range(len(r_preds_binary))]
@@ -304,6 +304,8 @@ def main(ARGS):
     print('\nFilled dataframe of results:')
     results.to_csv(index=True, path_or_buf='results.csv')
     print(results)
+
+    print(alphas)
 
 
 if __name__ == '__main__':
