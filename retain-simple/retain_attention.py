@@ -291,11 +291,11 @@ def main(ARGS):
         if i_flips[i] == 1 and r_flips[i] == 1:
             count_yy += 1
         if i_flips[i] == 1 and r_flips[i] == 0:
-            count_yy += 1
+            count_yn += 1
         if i_flips[i] == 0 and r_flips[i] == 1:
-            count_yy += 1
+            count_ny += 1
         if i_flips[i] == 0 and r_flips[i] == 0:
-            count_yy += 1
+            count_nn += 1
     print('i*: yes, r: yes --- ' + str(count_yy))
     print('i*: yes, r: non --- ' + str(count_yn))
     print('i*: non, r: yes --- ' + str(count_ny))
