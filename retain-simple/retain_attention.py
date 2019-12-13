@@ -363,7 +363,7 @@ if __name__ == '__main__':
     ARGS = Arguments(dataset='IMDB', dir_data='data', dir_model='model', 
                     preprocessing='lemmatize', stopwords='include',
                     num_codes=100000, num_sentences=50, num_words=50,
-                    emb_size=200, alpha_rec_size=200, beta_rec_size=200, 
-                    dropout_input=0.0, dropout_context=0.0, l2=0.0,
+                    emb_size=250, alpha_rec_size=250, beta_rec_size=250, 
+                    dropout_input=0.6, dropout_context=0.6, l2=0.6,
                     epochs=1, batch_size=128)
     main(ARGS)

@@ -122,13 +122,15 @@ def main(ARGS):
     checkpoint = ModelCheckpoint(filepath=os.path.join(ARGS.directory['model'], 'weights.{epoch:02d}.hdf5'))
     model.fit(x_train, y_train, epochs=ARGS.epochs, batch_size=ARGS.batch_size, callbacks=[checkpoint])
 
-    # # compute loss and accuracy for train set
-    # result = model.evaluate(x_train, y_train)
-    # print(result)
-
-    # # compute loss and accuracy for test set
-    # result = model.evaluate(x_test, y_test)
-    # print(result)
+    print('\n>>> Evaluating model')
+    # compute loss and accuracy for train set
+    print('\n Train loss and accuracy')
+    result = model.evaluate(x_train, y_train)
+    print(result)
+    # compute loss and accuracy for test set
+    print('\n Test loss and accuracy')
+    result = model.evaluate(x_test, y_test)
+    print(result)
 
 
 if __name__ == '__main__':
