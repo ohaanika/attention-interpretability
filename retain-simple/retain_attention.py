@@ -251,7 +251,6 @@ def main(ARGS):
     print('\nShapes of original and modified alphas (orig, zero, perm, rand, unif):')
     print(new_alphas['orig'].shape, new_alphas['zero_high'].shape, new_alphas['zero_rand'].shape,\
           new_alphas['perm'].shape, new_alphas['rand'].shape, new_alphas['unif'].shape)
-    print('\nLength of max alphas list: ' + str(len(max_alphas)))
 
     # TODO: REMOVE TEMPORARY MODIFICATION when reseting to 15000 instead of 10; and implementing perm
     perm = new_alphas.pop("perm", None)
@@ -267,7 +266,7 @@ def main(ARGS):
     # print(len(preds), len(preds_binary), len(y_test_binary))
 
     print('\n>>> Predicting probabilities with second submodel and alpha weights')
-    results = pd.DataFrame(index=new_alphas.keys(), columns=['preds','preds_binary','acc','JSdiv','JSdiv_binary','JSdiv_dist'])
+    results = pd.DataFrame(index=new_alphas.keys(), columns=['preds','preds_binary','acc','roc','JSdiv','JSdiv_binary','JSdiv_dist'])
     print('\nCurrently empty dataframe to store results:')
     print(results)
 
@@ -291,6 +290,11 @@ def main(ARGS):
         acc = accuracy_score(y_test_binary, new_preds_binary)
         results.at[a,'acc'] = acc
         print('Accuracy: ' + str(acc))
+
+        # note testing roc-auc
+        roc = roc_auc_score(y_test_binary, new_preds_binary)
+        results.at[a,'roc'] = roc
+        print('ROC-AUC: ' + str(roc))
 
         # note JS divergence 
         JSdiv = JS(preds, new_preds)**2

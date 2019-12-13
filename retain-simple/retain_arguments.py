@@ -25,7 +25,7 @@ from keras.regularizers import l2
 from keras.constraints import Constraint
 from keras.callbacks import ModelCheckpoint, Callback
 from keras.utils import plot_model
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, roc_auc_score
 from scipy.spatial.distance import jensenshannon as JS
 from scipy.stats import entropy
 from numpy.linalg import norm
