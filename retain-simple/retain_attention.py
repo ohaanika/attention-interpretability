@@ -97,12 +97,15 @@ def get_alphas(i, ra, rb, rx, model_parameters, dictionary):
     flat_output_scaled = [a for sa in ra for a in sa]
     max_index = np.where(flat_output_scaled == np.amax(flat_output_scaled))[0][0]
     ra_zero_high = copy.deepcopy(ra)
+    ra_i = ra_zero_high[max_index][0]
     ra_zero_high[max_index] = [0]
     ra_zero_high = [ra_zero_high / ra_zero_high.sum(axis=0)]
 
     # zero out random sentence and hence all its words
     ra_zero_rand = copy.deepcopy(ra)
-    ra_zero_rand[randrange(0, len(ra), 1)] = [0]
+    ran_index = randrange(0, len(ra), 1)
+    ra_r = ra_zero_rand[ran_index][0]
+    ra_zero_rand[ran_index] = [0]
     ra_zero_rand = [ra_zero_rand / ra_zero_rand.sum(axis=0)]
 
     # shuffle weights
@@ -139,13 +142,15 @@ def get_alphas(i, ra, rb, rx, model_parameters, dictionary):
     #     print(df)
     #     # importances.append(df)
 
-    return ra_zero_high[0], ra_zero_rand[0], ra_perm[0], ra_rand[0], ra_unif[0]
+    return ra_i, ra_r, ra_zero_high[0], ra_zero_rand[0], ra_perm[0], ra_rand[0], ra_unif[0]
 
 
 def modify_weights(x_data, y_data, old_pred, old_drops, old_alphas, old_betas, model_parameters, dictionary):
     alphas_type = ['orig','zero_high','zero_rand','perm','rand','unif']
     alphas_dict = {a: [] for a in alphas_type}
     alphas_dict['orig'] = old_alphas
+    i_alphas = []
+    r_alphas = []
     # for i in range(7):
     for i in range(len(x_data)):
         rx = x_data[i]
@@ -153,17 +158,47 @@ def modify_weights(x_data, y_data, old_pred, old_drops, old_alphas, old_betas, m
         rp = old_pred[i]
         ra = old_alphas[i]
         rb = old_betas[i]
-        ra_zero_high, ra_zero_rand, ra_perm, ra_rand, ra_unif = get_alphas(i, ra, rb, rx, model_parameters, dictionary)
+        ra_i, ra_r, ra_zero_high, ra_zero_rand, ra_perm, ra_rand, ra_unif = get_alphas(i, ra, rb, rx, model_parameters, dictionary)
         # alphas_dict['orig'].append(ra)
         alphas_dict['zero_high'].append(ra_zero_high)
         alphas_dict['zero_rand'].append(ra_zero_rand)
         alphas_dict['perm'].append(ra_perm)
         alphas_dict['rand'].append(ra_rand)
         alphas_dict['unif'].append(ra_unif)
+        i_alphas.append(ra_i)
+        r_alphas.append(ra_r)
     # convert all to numpy arrays
     for a in alphas_dict.keys():
         alphas_dict[a] = np.array(alphas_dict[a])
-    return alphas_dict
+    return alphas_dict, i_alphas, r_alphas
+
+
+def plot_JS(preds, i_preds, r_preds, i_alphas, r_alphas):
+    preds_dist = [np.array([pred, 1-pred]) for pred in preds]
+    i_preds_dist = [np.array([pred, 1-pred]) for pred in i_preds]
+    r_preds_dist = [np.array([pred, 1-pred]) for pred in r_preds]
+    i_preds_JS = []
+    r_preds_JS = []
+    delta_JS = []
+    delta_alphas = []
+    for i in range(len(preds_dist)):
+        i_JS = JS(preds_dist[i], i_preds_dist[i])
+        r_JS = JS(preds_dist[i], r_preds_dist[i])
+        i_preds_JS.append(i_JS)
+        r_preds_JS.append(r_JS)
+        delta_JS.append(i_JS - r_JS)
+        delta_alphas.append(i_alphas[i] - r_alphas[i])
+    # print(i_preds_JS)
+    # print(r_preds_JS)
+    print(delta_JS)
+    print(delta_alphas)
+    print(len(delta_JS))
+    print(len(delta_alphas))
+    plt.scatter(delta_alphas, delta_JS)
+    #plt.xlim((-0.1, 0.1))
+    plt.xlabel('Difference in attention weight magnitudes')
+    plt.ylabel('Difference in JS divergences \n from original output distributions')
+    plt.savefig('js.png')
 
 
 def main(ARGS):
@@ -212,10 +247,11 @@ def main(ARGS):
     print('Accuracy: ' + str(acc))
 
     print('\n>>> Modifying alpha attention weights') 
-    new_alphas = modify_weights(x_test, y_test, preds, drops, alphas, betas, model_parameters, dictionary)
+    new_alphas, i_alphas, r_alphas = modify_weights(x_test, y_test, preds, drops, alphas, betas, model_parameters, dictionary)
     print('\nShapes of original and modified alphas (orig, zero, perm, rand, unif):')
     print(new_alphas['orig'].shape, new_alphas['zero_high'].shape, new_alphas['zero_rand'].shape,\
           new_alphas['perm'].shape, new_alphas['rand'].shape, new_alphas['unif'].shape)
+    print('\nLength of max alphas list: ' + str(len(max_alphas)))
 
     # TODO: REMOVE TEMPORARY MODIFICATION when reseting to 15000 instead of 10; and implementing perm
     perm = new_alphas.pop("perm", None)
@@ -319,8 +355,7 @@ def main(ARGS):
     results.to_csv(index=True, path_or_buf='results.csv')
     print(results)
 
-    print(alphas)
-    print(new_alphas['orig'])
+    plot_JS(preds, i_preds, r_preds, i_alphas, r_alphas)
 
 
 if __name__ == '__main__':

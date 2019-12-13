@@ -29,6 +29,7 @@ from sklearn.metrics import accuracy_score
 from scipy.spatial.distance import jensenshannon as JS
 from scipy.stats import entropy
 from numpy.linalg import norm
+import matplotlib.pyplot as plt
 
 
 class Arguments():
