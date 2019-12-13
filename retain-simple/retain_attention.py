@@ -199,7 +199,7 @@ def main(ARGS):
     print(drops.shape, alphas.shape, betas.shape)
 
     print('\n>>> Predicting probabilities with second submodel')
-    preds = model.predict([drops, alphas, betas])
+    preds = submodel_2.predict([drops, alphas, betas])
     preds = [pred[0][0] for pred in preds]
     preds_binary = [int(round(pred)) for pred in preds]
     print('\nPredictions (float):')
