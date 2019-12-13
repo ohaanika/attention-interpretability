@@ -1,144 +1,66 @@
-from retain_arguments import *
+from __future__ import print_function
 
+from keras.preprocessing import sequence
+from keras.models import Sequential
+from keras.layers import Dense, Dropout, Activation
+from keras.layers import Embedding
+from keras.layers import Conv1D, GlobalMaxPooling1D
+from keras.datasets import imdb
 
-def read_data():
-    def convert_input(data):
-        return np.asarray(data)
-    def convert_output(data):
-        data = [[[target]] for target in data]
-        return np.asarray(data)
-    # read data from given paths
-    x_train = convert_input(pd.read_pickle(ARGS.path['data_train'])['codes'].tolist())
-    x_test = convert_input(pd.read_pickle(ARGS.path['data_test'])['codes'].tolist())
-    y_train = convert_output(pd.read_pickle(ARGS.path['target_train'])['target'].tolist())
-    y_test = convert_output(pd.read_pickle(ARGS.path['target_test'])['target'].tolist())
-    return x_train, y_train, x_test, y_test
+# set parameters:
+max_features = 5000
+maxlen = 400
+batch_size = 32
+embedding_dims = 50
+filters = 250
+kernel_size = 3
+hidden_dims = 250
+epochs = 2
 
+print('Loading data...')
+(x_train, y_train), (x_test, y_test) = imdb.load_data(num_words=max_features)
+print(len(x_train), 'train sequences')
+print(len(x_test), 'test sequences')
 
-def define_model():
-    # note contants
-    embeddings_constraint = FreezePadding()
-    beta_activation = 'tanh'
-    output_constraint = None
-    # define inputs and sequential embedding/lambda/dropout layers
-    codes = L.Input(
-        shape=(None, None), 
-        name='codes')
-    codes_embs_total = L.Embedding(
-        input_dim=ARGS.num_codes+1,
-        output_dim=ARGS.emb_size,
-        embeddings_constraint=embeddings_constraint,
-        name='embedding')(codes)
-    codes_embs = L.Lambda(
-        function=lambda x: K.sum(x, axis=2),
-        name='lambda_1')(codes_embs_total)
-    codes_embs = L.Dropout(
-        rate=ARGS.dropout_input,
-        name='dropout_1')(codes_embs)
-    # define alpha layer to compute sentence level attention
-    alpha = L.Bidirectional(
-        layer=L.CuDNNLSTM(
-            ARGS.alpha_rec_size, 
-            return_sequences=True), 
-        name='alpha')(codes_embs)
-    alpha_dense = L.TimeDistributed(
-        layer=L.Dense(
-            units=1, 
-            kernel_regularizer=l2(ARGS.l2)), 
-        name='alpha_dense')(alpha)
-    alpha_softmax = L.Softmax(
-        axis=1,
-        name='alpha_softmax')(alpha_dense)
-    # define beta layer to compute word level attention
-    beta = L.Bidirectional(
-        layer=L.CuDNNLSTM(
-            ARGS.beta_rec_size, 
-            return_sequences=True), 
-        name='beta')(codes_embs)
-    beta_dense = L.TimeDistributed(
-        L.Dense(
-            units=ARGS.emb_size, 
-            activation=beta_activation, 
-            kernel_regularizer=l2(ARGS.l2)), 
-        name='beta_dense')(beta)
-    # define context layers to compute context vector based on attentions and embeddings
-    c_t = L.Multiply(
-        name='multiply')([codes_embs, alpha_softmax, beta_dense])
-    c_t = L.Lambda(
-        function=lambda x: K.sum(x, axis=1),
-        name='lambda_2')(c_t)
-    # reshape context vectors to 3d vector for consistency between Many to Many and Many to One implementations
-    contexts = L.Lambda(
-        function=lambda x: K.reshape(x, shape=(K.shape(x)[0], 1, 200)), # TODO: ARGS.emb_size = 200
-        name='lambda_3')(c_t)
-    # define dropout layer to make a prediction
-    contexts = L.Dropout(
-        rate=ARGS.dropout_context,
-        name='dropout_2')(contexts)
-    # TimeDistributed is used for consistency between Many to Many and Many to One implementations
-    output = L.TimeDistributed(
-        layer=L.Dense(
-            units=1, 
-            activation='sigmoid', 
-            name='dOut', 
-            kernel_regularizer=l2(ARGS.l2),
-            kernel_constraint=output_constraint), 
-        name='time_distributed')(contexts)
-    # define the model with appropriate inputs and outputs
-    model = Model(inputs=[codes], outputs=[output])
-    # compile model 
-    model.compile(
-        optimizer='adamax',
-        loss='binary_crossentropy',
-        metrics=['accuracy'],
-        sample_weight_mode='temporal')
-    # visually inspect architecture of model
-    model.summary()
-    return model
+print('Pad sequences (samples x time)')
+x_train = sequence.pad_sequences(x_train, maxlen=maxlen)
+x_test = sequence.pad_sequences(x_test, maxlen=maxlen)
+print('x_train shape:', x_train.shape)
+print('x_test shape:', x_test.shape)
 
+print('Build model...')
+model = Sequential()
 
-def main(ARGS):
-    print('\n>>> Reading data as numpy arrays')
-    x_train, y_train, x_test, y_test = read_data()
-    print('\nShape of "x_train": ' + str(x_train.shape))
-    print('Shape of "y_train": ' + str(y_train.shape))
-    print('Shape of "x_test": ' + str(x_test.shape))
-    print('Shape of "y_test": ' + str(y_test.shape))
+# we start off with an efficient embedding layer which maps
+# our vocab indices into embedding_dims dimensions
+model.add(Embedding(max_features,
+                    embedding_dims,
+                    input_length=maxlen))
+model.add(Dropout(0.2))
 
-    # TODO: pick best optimizer/loss/etc when compiling
-    # https://keras.io/models/model/#compile
-    # https://keras.io/optimizers/
-    # https://keras.io/losses/
-    # adamax has produced best results in RETAIN experiments
-    print('\n>>> Create a model to take codes as input, targets as output')
-    model = define_model()
+# we add a Convolution1D, which will learn filters
+# word group filters of size filter_length:
+model.add(Conv1D(filters,
+                 kernel_size,
+                 padding='valid',
+                 activation='relu',
+                 strides=1))
+# we use max pooling:
+model.add(GlobalMaxPooling1D())
 
-    print('\n>>> Saving model architecture as ' + ARGS.path['model_plot'])
-    plot_model(model, to_file=ARGS.path['model_plot'])
+# We add a vanilla hidden layer:
+model.add(Dense(hidden_dims))
+model.add(Dropout(0.2))
+model.add(Activation('relu'))
 
-    # TODO: implement validation split to pick epochs, batch_size, and more
-    # https://keras.io/models/model/#fit
-    print('\n>>> Fitting model')
-    checkpoint = ModelCheckpoint(filepath=os.path.join(ARGS.directory['model'], 'weights.{epoch:02d}.hdf5'))
-    model.fit(x_train, y_train, epochs=ARGS.epochs, batch_size=ARGS.batch_size, callbacks=[checkpoint])
+# We project onto a single unit output layer, and squash it with a sigmoid:
+model.add(Dense(1))
+model.add(Activation('sigmoid'))
 
-    print('\n>>> Evaluating model')
-    # compute loss and accuracy for train set
-    print('\n Train loss and accuracy')
-    result = model.evaluate(x_train, y_train)
-    print(result)
-    # compute loss and accuracy for test set
-    print('\n Test loss and accuracy')
-    result = model.evaluate(x_test, y_test)
-    print(result)
-
-
-if __name__ == '__main__':
-    print('\n>>> Initialize arguments')
-    ARGS = Arguments(dataset='IMDB', dir_data='data', dir_model='model', 
-                    preprocessing='lemmatize', stopwords='include',
-                    num_codes=100000, num_sentences=50, num_words=50,
-                    emb_size=200, alpha_rec_size=200, beta_rec_size=200, 
-                    dropout_input=0.0, dropout_context=0.0, l2=0.0,
-                    epochs=3, batch_size=128)
-    main(ARGS)
+model.compile(loss='binary_crossentropy',
+              optimizer='adam',
+              metrics=['accuracy'])
+model.fit(x_train, y_train,
+          batch_size=batch_size,
+          epochs=epochs,
+          validation_data=(x_test, y_test))
