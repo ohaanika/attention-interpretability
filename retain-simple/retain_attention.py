@@ -192,6 +192,8 @@ def main(ARGS):
     print(preds)
     print('Predictions (int):')
     print(preds_binary)
+    acc = accuracy_score(y_test_binary, preds_binary)
+    print('Accuracy: ' + str(acc))
 
     print('\n>>> Gather attention weights from original model to feed as input for second submodel')
     drops, alphas, betas = submodel_1.predict(x_test)
@@ -199,13 +201,15 @@ def main(ARGS):
     print(drops.shape, alphas.shape, betas.shape)
 
     print('\n>>> Predicting probabilities with second submodel')
-    preds = submodel_2.predict([drops, alphas, betas])
-    preds = [pred[0][0] for pred in preds]
-    preds_binary = [int(round(pred)) for pred in preds]
+    new_preds = submodel_2.predict([drops, alphas, betas])
+    new_preds = [pred[0][0] for pred in new_preds]
+    new_preds_binary = [int(round(pred)) for pred in new_preds]
     print('\nPredictions (float):')
-    print(preds)
+    print(new_preds)
     print('Predictions (int):')
-    print(preds_binary)
+    print(new_preds_binary)
+    acc = accuracy_score(y_test_binary, new_preds_binary)
+    print('Accuracy: ' + str(acc))
 
     print('\n>>> Modifying alpha attention weights') 
     new_alphas = modify_weights(x_test, y_test, preds, drops, alphas, betas, model_parameters, dictionary)
