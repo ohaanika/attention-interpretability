@@ -194,9 +194,9 @@ def plot_JS(preds, i_preds, r_preds, i_alphas, r_alphas):
     print(delta_alphas)
     print(len(delta_JS))
     print(len(delta_alphas))
-    plt.scatter(delta_alphas, delta_JS)
-    #plt.xlim((-0.1, 0.1))
-    plt.xlabel('Difference in attention weight magnitudes')
+    plt.scatter(delta_alphas, delta_JS, s=1)
+    plt.ylim((-0.1, 1))
+    plt.xlabel('Difference in i* and r* attention weight magnitudes')
     plt.ylabel('Difference in JS divergences \n from original output distributions')
     plt.savefig('js.png')
 
